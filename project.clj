@@ -6,6 +6,8 @@
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.clojure/tools.namespace "0.2.4"]
                  [com.googlecode.lanterna/lanterna "2.1.5"]
+                 ;; Used in slick gui backend, currently located in local repository,
+                 ;; why its not in normal? its a long story
                  ;[lwjgl/lwjgl "1.0"]
                  ;[lwjgl/lwjgl_util "1.0"]
                  ;[jinput/jinput "1.0"]

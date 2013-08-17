@@ -13,8 +13,8 @@
     (->> (fn [] 
            (while true
              (if-let [inp (s/get-key @*screen*)]
-               (send ainput conj inp))
-             (Thread/sleep 16)))
+               (send ainput #(conj (vec %) inp)))
+             (Thread/sleep 10)))
          Thread.
          (reset! *input-thread*)
          .start)
