@@ -34,7 +34,9 @@
       (concat res 
               (reduce
                 (fn [splitted ch]
-                  (if (or (>= (count (last splitted)) limit) (nil? ch) (= ch \newline))
+                  (if (or (if (= limit -1) false (>= (count (last splitted)) limit))
+                          (nil? ch) 
+                          (= ch \newline))
                     (conj (vec splitted) (str ch))
                     (conj (vec (butlast splitted)) (str (last splitted) ch))))
                 []

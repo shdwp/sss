@@ -36,8 +36,8 @@
     (pointable gs canvas ox oy getter)
     gs))
 
-(defn text [& lines]
-  (apply bm/bitmap lines))
+(defn text [w & lines]
+  (apply gr/split-str-at w lines))
 
 (defn scrollable-bitmap [bm canvas t l & [border]]
   (view/view-bitmap bm

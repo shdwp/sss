@@ -6,6 +6,7 @@
             [sss.game.gamestate :as gs]
             [sss.universe.core :as uni]
             [sss.universe.system.core :as sys]
+            [sss.universe.planet.core :as planet]
             [sss.universe.space.core :as space]
             [sss.ship.autopilot :as autopi]
             [sss.graphics.gui.core :as gui]
@@ -39,7 +40,11 @@
                   (fn [s o]
                     (conj s 
                           (case k
-                            :systems (sys/system-summary o))))
+                            :systems (sys/system-summary o)
+                            :planets (planet/planet-summary o)
+                            :gates (sys/gate-summary o)
+                            :stars (sys/system-summary o)
+                            {:unknown 404})))
                   []
                   v)))
       []
@@ -95,6 +100,14 @@
         ))
     gs))
 
+(defn pointable-map [gs x y]
+  (let [data (sys/pointed-data (gs/get-universe gs (take 3 (-> gs :console :path))) 
+                               (:tick gs))]
+  (update-in gs 
+             [:console :maps :map :selected]
+             (fn [_]
+               (get-in data [x y])))))
+
 (defn update [gs -gs]
   (-> gs
       gen-maps-data
@@ -116,6 +129,12 @@
                                   [:console :maps :gmap :selected]
                                   (fn [_] 
                                     (get-in (-> gs :console :maps :gmap :data) [x y])))))
+      (gui/pointable-in-modes [:console :mode]
+                              [:map]
+                              (-> gs :console :screen)
+                              (or (-> gs :console :map :x) 0) 
+                              (or (-> gs :console :map :y) 0)
+                              pointable-map)
       (gui/scrollable-in-modes [:console :mode] 
                                [:gmap :map] 
                                [:console :map :x] 
@@ -128,7 +147,7 @@
       :info 
       (canvas/paint 
         canvas 
-        (gui/text
+        (gui/text -1
           (str "ship " (:name ship))
           "position"
           (str " " (uni/unipath (:universe gs) 
@@ -148,20 +167,20 @@
            (or (-> gs :console :map :y) 0) 
            (or (-> gs :console :map :x) 0)
            2) :t 1 :l 1)
+        ((apply gui/text 30 (flatten (map gr/text-map (info-on (-> gs :console :maps :map :selected)))))
+         :t 1 :l 1)
         )
       :gmap
       (let [info (info-on (-> gs :console :maps :gmap :selected))]
         (canvas/in-paint
           canvas
-          ((gui/text (str (-> gs :console :map :x) (-> gs :console :map :y)))
-           :t 0 :l 0)
-           ((gui/scrollable-pointable-bitmap
-              canvas
-              (-> gs :console :maps :gmap :bitmap)
-              (or (-> gs :console :map :y) 0) 
-              (or (-> gs :console :map :x) 0)
-              2) :t 1 :l 1)
-          ((apply gui/text (flatten (map gr/text-map info)))
+          ((gui/scrollable-pointable-bitmap
+             canvas
+             (-> gs :console :maps :gmap :bitmap)
+             (or (-> gs :console :map :y) 0) 
+             (or (-> gs :console :map :x) 0)
+             2) :t 1 :l 1)
+          ((apply gui/text 30 (flatten (map gr/text-map info)))
            :t 1 :l 1)))
       :gate
       (do

@@ -24,6 +24,9 @@
    :planets (count (:planets system))
    :ships (count (:ships system))})
 
+(defn gate-summary [gate]
+  {:description "gates are only items that have description, you should care of it"})
+
 (defn pointed-data [system tick]
   (let [initconj (fn [v d]
                    (if (coll? v)
@@ -62,7 +65,7 @@
                               d
                               (:planets s)))
         apply-star (fn [d s]
-                     (update-in d (conj (:star s) :stars) initconj {}))]
+                     (update-in d (conj (:star s) :stars) initconj s))]
     (-> data
         (apply-star system)
         (apply-planets system)

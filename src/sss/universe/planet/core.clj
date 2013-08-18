@@ -32,8 +32,8 @@
 (defn gen-climate [planet]
   (let [ratio (/ (- (inc (:track planet)) (first planet-track-bounds)) 
                  (second planet-track-bounds))
-        i (int (* (count planet-atmosphere) ratio))]
-    (nth planet-atmosphere i)))
+        i (int (* (count planet-climates) ratio))]
+    (nth planet-climates i)))
 
 (defn gen-name [planet]
   (join
@@ -66,3 +66,13 @@
             (gen-planet planets system)))
     []
     (range (rnd/r 3 6))))
+
+(defn planet-summary [planet]
+  {:name (:name planet)
+   :type (:type planet)
+   :core (:core planet)
+   :atmosphere (str (:atmosphere planet))
+   :climate (:climate planet)
+   :size (:size planet)
+   :track (:track planet)})
+
