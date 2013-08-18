@@ -5,12 +5,38 @@
             [sss.game.gamestate :as gs]
             [clojure.string :refer [join]]))
 
+(in-ns 'user)
+(def gs (atom nil))
+
+(defn mk-path [path]
+  (vec (flatten (map #(if (keyword? %) % %) path))))
+
+(defn s [& pv]
+  (let [path (mk-path (butlast pv))
+        value (last pv)]
+    (do (reset! gs (update-in @gs path (fn [_] value)))
+        nil)))
+
+(defn g [& path]
+  (get-in @gs (mk-path path)))
+
+(defn u [& pi]
+  (let [path (mk-path (butlast pi))
+        ifn (last pi)]
+    (do (reset! gs (update-in @gs path ifn))
+        nil)))
+
+(defn actor []
+  (cons :universe (:actor-path @gs)))
+
+(in-ns 'sss.graphics.gui.term)
+
 (defn execute [gs string]
   (try 
-    (reset! (resolve 'sss.core/gs) gs)
+    (reset! user/gs gs)
     (let [expr (read-string (str string))
           output (str (eval expr))
-          gs @(resolve 'sss.core/gs)]
+          gs @user/gs]
       (-> gs
           (update-in [:meta :term :lines] conj output)))
   (catch Exception e (update-in gs [:meta :term :lines] conj (str e)))))
@@ -72,7 +98,7 @@
 (defn term-painter [canvas gs]
   (if (get-in gs [:meta :term :active])
     (let [lines (apply 
-                  (partial gr/split-str-at 50) 
+                  (partial gr/split-str-at 50)
                   (reverse (get-in gs [:meta :term :lines])))]
       (-> gs :meta :term :lines)
       (can/paint 

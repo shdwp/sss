@@ -23,15 +23,8 @@
 (defprotocol IUsable
   (turn [this gs path x y]))
 
-(defrecord Tile [character passability metadata]
-;  ICharacterable (get-character [this] (:character this))
-;  IPassability (can-pass [this e] ((:passability this) this e))
-;  IDoorable Tile (toggle [this]
-;                   (if (not= nil (get-meta this [:opened]))
-;                     (update-meta this [:opened] not)
-;                     this)))
-  )
-
+;; @TODO: figure out why I need extend-protocol instead of simply describe methods here
+(defrecord Tile [character passability metadata])
 
 (defn tile [character passability & [metadata]]
   (Tile. character passability metadata))
@@ -39,6 +32,7 @@
 (defn tile? [ins]
   (instance? Tile ins))
 
+;; @TODO: clean up
 (defn tiles [& [t & ts]]
   (concat (if (some #(% t) [vector? list? set? seq?]) t (list t)) (mapcat tiles ts)))
 
@@ -49,7 +43,10 @@
   nil (get-character [_] \space)
   String (get-character [this] (.charAt this 0))
   Character (get-character [this] this)
-  Tile (get-character [this] (:character this)))
+  clojure.lang.IPersistentMap (get-character [this] this)
+  Tile (get-character [this] {:fg (or (-> this :metadata :fg) :default) 
+                              :bg (or (-> this :metadata :bg) :default)
+                              :ch (:character this)}))
 
 (extend-protocol IPassability
   nil (can-pass [_ _] true)

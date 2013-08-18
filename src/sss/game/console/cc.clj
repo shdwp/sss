@@ -86,11 +86,12 @@
                      row))
                  []
                  (-> gs :console :maps :gmap :data))
-        ]
-    (prn system)
+        screen (-> gs :console :screen)
+        x (-> system second - (+ (/ (canvas/w screen) 2)) int)
+        y (-> system second - (+ (/ (canvas/h screen) 2)) int)]
     (-> gs
-        (update-in [:console :map :y] (fn [_] (-> system second - (/ 2) int)))
-        (update-in [:console :map :x] (fn [_] (-> system first - (/ 2) int)))
+        (update-in [:console :map :y] (fn [_] y))
+        (update-in [:console :map :x] (fn [_] x))
         ))
     gs))
 

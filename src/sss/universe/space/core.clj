@@ -71,8 +71,8 @@
                   (paint-cb
                     (can/in-paint
                       c
-                      ((bm/bitmap "*") :t y :l x)
-                      ((gr/string (str x ";" y " " (:name i))) :t (dec y) :l (- x 1)))
+                      ((bm/bitmap "`yellow:*") :t y :l x)
+                      ((gr/string (str "`magenta:" (:name i))) :t (dec y) :l (- x 1)))
                   x y (:rx i) (:ry i) i))
                 c
                 v))

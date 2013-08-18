@@ -51,11 +51,13 @@ No, the WTF is not this overly formalized, non-Agile, upfront design, big archit
 (def chunks (filter #(not (or (.startsWith % "^") (.endsWith % "$"))) chunks))
 
 (defn gen-word [len]
-  (let [len (- len 2)]
+  (let [len (- len 2)
+        start (rest (rnd/choice start-chunks))]
     (join
       (concat 
-        (rest (rnd/choice start-chunks))
-        (rnd/choice-num chunks len)
+        start
+        (first (filter #(.startsWith % (join (take-last 2 start ))) chunks))
+        ;(rnd/choice-num chunks len)
         (butlast (rnd/choice end-chunks))))))
 
 (defn gen-race-name [race]

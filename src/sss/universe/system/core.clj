@@ -79,10 +79,10 @@
               (reduce
                 (fn [c i]
                   (can/paint c (case k
-                                 :ships (bm/bitmap "0")
-                                 :gates (bm/bitmap "G")
-                                 :stars (bm/bitmap "*")
-                                 :planets (bm/bitmap "o")
+                                 :ships (bm/bitmap "`blue:0")
+                                 :gates (bm/bitmap "`blue:G")
+                                 :stars (bm/bitmap "`yellow:*")
+                                 :planets (bm/bitmap "`cyan:o")
                                  (bm/bitmap "?"))
                              :t y :l x))
                 c

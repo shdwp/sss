@@ -24,7 +24,11 @@
                (fn [y row]
                  (doall (map-indexed
                           (fn [x ch]
-                            (s/put-string @*screen* x y (str (tile/get-character ch))))
+                            (let [ch (tile/get-character ch)
+                                  fg (if (map? ch) (:fg ch) :default)
+                                  bg (if (map? ch) (:bg ch) :default)
+                                  c (if (map? ch) (:ch ch) ch)]
+                            (s/put-string @*screen* x y (str c) {:fg fg :bg bg})))
                           row)))
                @aview))
       (s/put-string @*screen* 52 0 (str "sss.gui.lanterna-clojure"))

@@ -1,13 +1,9 @@
 (ns sss.graphics.bitmap
-  (:require [clojure.string :refer [split join]]))
+  (:require [clojure.string :refer [split]]))
 
 ;; Bitmap - 2-level vector to put on canvas (simple sprite)
 
-(defn bitmap 
-  "Make bitmap from ~rows. They can be:
-  * collections of characters (simply), tiles (sss.tile.core.Tile)
-  * strings: simply strings, strings with colors (`black:black_text:`default:~black:black_foregrounded_text)"
-  [& rows]
+(defn bitmap [& rows]
   (map (fn [row]
          (if (and (string? row) ((set row) \:))
            (let [parts (split row #"\:")]
@@ -16,11 +12,10 @@
                  (fn [res part]
                    (cond 
                      (.startsWith part "`") 
-                     (conj (rest res) (assoc (first res) :fg (-> part rest join keyword)))
+                     (conj (rest res) (assoc (first res) :fg part))
                      (.startsWith part "~")
-                     (conj (rest res) (assoc (first res) :bg (-> part rest join keyword)))
-                     :else (concat (vec res) 
-                                   (map #(assoc (first res) :ch %) part))
+                     (conj (rest res) (assoc (first res) :bg part))
+                     :else (conj res (assoc (first res) :ch part))
                      ))
                  [{}]
                  parts)))

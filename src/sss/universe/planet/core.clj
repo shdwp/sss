@@ -11,7 +11,7 @@
 (def planet-name-parts ["no" "lol" "ko" "dna" "kli" "ngo" "ji" "ra"])
 
 (defn gen-size []
-  (if (rnd/chanced? 20)
+  (if (rnd/chance? 20)
     (apply rnd/r planet-gas-bounds)
     (apply rnd/r planet-hard-bounds)))
 
