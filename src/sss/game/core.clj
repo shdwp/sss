@@ -52,7 +52,7 @@
         (gate-system system-path (:actor-path gs)))))
 
 (defn gen-gs []
-  (let [universe (-> (uni/universe)
+  (let [universe (-> (uni/gen-universe)
                      (update-in [:space 0 1 :ships 0]
                                 (fn [& _] (ship-gen/gen-ship (ship/-ship))))
                      (update-in [:space 0 1 :ships 0 :entities 0] 

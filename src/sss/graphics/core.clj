@@ -1,5 +1,6 @@
 (ns sss.graphics.core
   (:require [sss.graphics.canvas :refer :all]
+            [clojure.string :refer [join]]
             [sss.graphics.bitmap :refer :all]))
 
 (defn line [bx by ch]
@@ -33,10 +34,17 @@
       (concat res 
               (reduce
                 (fn [splitted ch]
-                  (if (>= (count (last splitted)) limit)
+                  (if (or (>= (count (last splitted)) limit) (nil? ch) (= ch \n))
                     (conj (vec splitted) (str ch))
                     (conj (vec (butlast splitted)) (str (last splitted) ch))))
                 []
                 s)))
     []
     strings))
+
+(defn text-map [m]
+  (reduce
+    (fn [s [k v]]
+      (conj s (str (join (drop 1 (str k))) ": " v)))
+    []
+    m))

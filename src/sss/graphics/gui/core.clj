@@ -17,7 +17,7 @@
         (let [d (gs/direction k)
               x (or (get-in gs xp) 0)
               y (or (get-in gs yp) 0)
-              xy (gs/xy-apply-dir d x y)]
+              xy (gs/xy-apply-dir d x y true)]
           (-> gs
               (update-in xp (fn [_] (first xy)))
               (update-in yp (fn [_] (second xy)))))))
@@ -25,6 +25,16 @@
 
 (defn scrollable-in-modes [gs value values xp yp]
   (scrollable gs #((set values) (get-in % value)) xp yp))
+
+(defn pointable [gs canvas ox oy getter]
+  (let [cursor [(- (int (dec (/ (can/w canvas) 2))) ox) 
+                (- (int (dec (/ (can/h canvas) 2))) oy)]]
+    (apply getter gs cursor)))
+
+(defn pointable-in-modes [gs value values canvas ox oy getter]
+  (if ((set values) (get-in gs value))
+    (pointable gs canvas ox oy getter)
+    gs))
 
 (defn text [& lines]
   (apply bm/bitmap lines))
@@ -35,6 +45,18 @@
                     (- (can/h canvas) t (or border 0))
                     :t t
                     :l l))
+
+(defn scrollable-pointable-bitmap [canvas bm t l & [border]]
+  (let [w (can/w canvas)
+        h (can/h canvas)]
+    (-> bm
+        (view/view-bitmap 
+          (- (can/w canvas) l (or border 0))
+          (- (can/h canvas) t (or border 0))
+          :t t
+          :l l)
+        (can/paint (bm/bitmap "X") :l (int (dec (/ w 2))) :t (int (dec (/ h 2))))
+  )))
 
 (def key-choices (map char (range 97 126)))
 

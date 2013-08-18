@@ -60,6 +60,8 @@
 (defn start [gs]
   (->> #(lanclj/view! (:view gs) (:input gs))
        Thread.
+       (#(do (.setPriority % Thread/MAX_PRIORITY)
+             %))
        (reset! *gui-thread*)
        .start)
   (game-cycle (assoc gs :ship (ship/gen-map 
