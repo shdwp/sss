@@ -42,7 +42,7 @@ No, the WTF is not this overly formalized, non-Agile, upfront design, big archit
                   (fn [text sub]
                     (lower-case (.replaceAll text sub " ")))
                   text
-                  ["\\." "\\," "\\!" "\\?" "\\-" "\\n"])
+                  ["\\." "\\," "\\!" "\\?" "\\-" "\\n" "/"])
                 #" ")))))
 
 (def chunks (chnk text))
@@ -51,17 +51,23 @@ No, the WTF is not this overly formalized, non-Agile, upfront design, big archit
 (def chunks (filter #(not (or (.startsWith % "^") (.endsWith % "$"))) chunks))
 
 (defn gen-word [len]
-  (let [len (- len 2)
-        start (rest (rnd/choice start-chunks))]
-    (join
-      (concat 
-        start
-        (first (filter #(.startsWith % (join (take-last 2 start ))) chunks))
-        ;(rnd/choice-num chunks len)
-        (butlast (rnd/choice end-chunks))))))
+  (let [len (- len 2)]
+    ((fn [word len]
+       (let [matching (filter #(.startsWith % (join (take-last 2 word))) chunks)
+             chnk (if (empty? matching)
+                    (rnd/choice chunks)
+                    (join (drop 2 (rnd/choice matching))))
+             end-matching (filter #(.startsWith % (join (take-last 2 word))) end-chunks)
+             end-chnk (if (empty? end-matching)
+                        (rnd/choice end-chunks)
+                        (join (drop 2 (rnd/choice end-matching))))]
+         (if-not (zero? len)
+           (recur (str word chnk) (dec len))
+           (str word (join (butlast end-chnk))))
+         )) (join (rest (rnd/choice start-chunks))) len)))
 
 (defn gen-race-name [race]
-  (gen-word (rnd/r 2 4)))
+  (gen-word (rnd/r 3 4)))
 
 (defn gen-race-lang [race]
   (join

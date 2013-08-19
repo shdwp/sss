@@ -76,3 +76,8 @@
    :size (:size planet)
    :track (:track planet)})
 
+(defn can-live? [planet race]
+  (and
+    ((set (:atmosphere planet)) :o2)
+    (= :hard (:type planet))
+    (#{:estimate :hot :cold} (:climate planet))))

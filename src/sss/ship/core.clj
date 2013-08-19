@@ -1,13 +1,10 @@
 (ns sss.ship.core
+  "Ship - object in :ships part of system representing spaceship."
   (:require [sss.gmap.core :as gmap]
             [sss.ship.form :as form]
             [sss.ship.gen :refer :all]))
 
-;;!!!: в gen.clj есть методы gen-*, если их изменить и перезагрузить файл gen.clj, то 
-;;изменений не будет, пока не перезагрузится этот файл
-;;похоже на то, что в :scheme помещаются целые копии функций
-
-(defn -ship [] {:name "Enterprise" 
+(defn -ship [] {:name "testship" 
                 :x 0 :y 0
                 :systems {:autopilot {:enabled true 
                                       :to [:space 0 1]}}

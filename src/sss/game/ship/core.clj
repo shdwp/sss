@@ -1,4 +1,5 @@
 (ns sss.game.ship.core
+  "Game-dispatcher for game on ship"
   (:require [sss.gui.lanterna-clojure.core :as lanclj]
             [sss.gui.prn.core :as prngui]
 
@@ -17,13 +18,17 @@
             [taoensso.timbre :refer [spy]]
             ))
 
+;; @TODO
 (defn game-turn [gs]
   (-> gs
       (gs/log-turn)
       (assoc :ship (gmap/run-dispatcher (:ship gs)))))
 
-(defn game-cycle [-gs]
-  (let [gs (gs/update -gs
+(defn game-cycle 
+  "Main ship cycle"
+  [-gs]
+  (let [gs (assoc -gs :last-cycle (System/currentTimeMillis))
+        gs (gs/update gs
                       term/term-ruler
                       ggmap/skip-ruler
                       ggmap/actor-door-ruler
@@ -37,31 +42,40 @@
                  (gmap/put (entity/bitmap (gs/actor gs)) 
                            (-> (gs/actor gs) :x) 
                            (-> (gs/actor gs) :y))
-                 gmap/as-canvas
+                 gmap/as-bitmap
                  (view/view-bitmap-centered 30 20 (:x (gs/actor gs)) (:y (gs/actor gs))))
         canvas (-> (canvas/canvas 50 40)
                    (canvas/paint gmap :t 0 :l 0)
                    (canvas/paint (gr/string (str "tick_" (:tick gs))) :t 0 :l 32)
+                   (canvas/paint (gr/string 
+                                   (str "tps_" 
+                                        (int (/ (apply + (:fps gs)) (count (:fps gs))))
+                                        )) :t 1 :l 32)
                    (canvas/paint (gr/text-buffer 
                                    (map 
                                      #(str "(" (first %) ") " (second %)) 
                                      (:log gs)) 
                                    20 
-                                   10) :t 1 :l 32)
-                   (term/term-painter gs))]
-    (send (:view gs) 
-          (fn [_] 
-            canvas))
-    (Thread/sleep 100)
-    (game-cycle gs)))
+                                   10) :t 2 :l 32)
+                   (term/term-painter gs))
+        gs (-> gs
+               (update-in [:fps]
+                          (fn [f]
+                            (cons
+                              (/ 1000 (- (:last-cycle gs) (:last-cycle -gs)))
+                              (butlast f)))))
+        ]
+    (send (:view gs) (fn [_] canvas))
+    (gs/limit-tps gs 20)
+    (recur gs)))
 
 (def ^:dynamic *gui-thread* (atom nil))
 
-(defn start [gs]
+(defn start 
+  "Start game on ship with ~gs"
+  [gs]
   (->> #(lanclj/view! (:view gs) (:input gs))
        Thread.
-       (#(do (.setPriority % Thread/MAX_PRIORITY)
-             %))
        (reset! *gui-thread*)
        .start)
   (game-cycle (assoc gs :ship (ship/gen-map 
@@ -69,6 +83,8 @@
                                   (:universe gs) 
                                   (drop-last 2 (:actor-path gs)))))))
 
-(defn shutdown []
+(defn shutdown 
+  "Shutdown game (must be called for proper gui threads interruption)"
+  []
   (lanclj/shutdown!)
   (.interrupt @*gui-thread*))

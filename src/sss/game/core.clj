@@ -1,13 +1,18 @@
 (ns sss.game.core
+  "Top level game-dispatcher.
+  Game-dispatcher is bunch of functions to deal current level of game."
   (:require [sss.game.gamestate :as gs]
             [sss.game.ship.core :as game-ship]
+            [sss.game.game :as game-game] ;; @TODO
             [sss.universe.core :as uni]
             [sss.ship.core :as ship]
             [sss.ship.gen :as ship-gen]
             [sss.entity.actor :as actor]
             [sss.ship.autopilot :as autopi]))
 
-(defn autopilot-system [gs system-path]
+(defn autopilot-system 
+  "System for autopilotting ships in ~system-path of ~gs's universe"
+  [gs system-path]
   (gs/update-universe
     gs 
     system-path
@@ -22,7 +27,9 @@
                                 gs 
                                 (concat system-path [:ship (count %1)]))) [] ships))))))
 
-(defn gate-system [gs system-path actor-path]
+(defn gate-system 
+  "System for moving ships take from gate queue to other systems from ~system-path in ~gs's universe. You must provide ~actor-path to change it if actor's ship was moved."
+  [gs system-path actor-path]
   (if-let [task (first (gs/get-universe gs (concat system-path [:gate :queue])))]
     (let [ship-path (first task)
           ship (gs/get-universe gs ship-path)
@@ -45,13 +52,17 @@
     gs)
   )
 
-(defn universe-turner [gs]
+(defn universe-turner 
+  "Turner for entire universe!"
+  [gs]
   (let [system-path (take 3 (:actor-path gs))]
     (-> gs
         (autopilot-system system-path)
         (gate-system system-path (:actor-path gs)))))
 
-(defn gen-gs []
+(defn gen-gs 
+  "Generate gamestate"
+  []
   (let [universe (-> (uni/gen-universe)
                      (update-in [:space 0 1 :ships 0]
                                 (fn [& _] (ship-gen/gen-ship (ship/-ship))))
@@ -60,6 +71,8 @@
           actor-path [:space 0 1 :ships 0 :entities 0]]
         (gs/gamestate universe actor-path universe-turner)))
 
-(defn start [& [gs]]
-  (game-ship/start (gen-gs)))
+(defn start 
+  "Start game with ~gs (or without)"
+  [& [gs]]
+  (game-game/start (gen-gs)))
 

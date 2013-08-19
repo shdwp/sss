@@ -1,23 +1,32 @@
 (ns sss.graphics.canvas
+  "Canvas - bitmap designed for painting on it (formally ordinary bitmap)"
   (:require [sss.graphics.bitmap :refer [char-at]]))
 
-;; Canvas - 2 level vector contains characters to paint
-
-(defn canvas [w h]
+(defn canvas 
+  "Create canvas with ~w(idth) and ~h(eight)"
+  [w h]
   (repeat h (repeat w " ")))
 
-(defn w [canvas]
+(defn w 
+  "Get width of ~canvas"
+  [canvas]
   (if (empty? canvas)
     0
     (count (first canvas))))
 
-(defn h [canvas]
+(defn h 
+  "Get height of ~canvas"
+  [canvas]
   (count canvas))
 
-(defn bitmap-paint-cords [y x t l]
+(defn bitmap-paint-cords 
+  "Calculate coordinates depending of ~y ~x ~t(op) ~l(eft)"
+  [y x t l]
   [(- x l) (- y t)])
 
-(defn paint-padding [canvas bitmap t l]
+(defn paint-padding 
+  "Paint ~bitmap into ~canvas with padding of ~t(op) and ~l(eft)"
+  [canvas bitmap t l]
   (map-indexed 
     (fn [y row]
       (map-indexed
@@ -30,20 +39,21 @@
     canvas))
 
 (defn paint 
-  ([canvas bitmap & {:keys [t l b r] :or [nil nil nil nil] :as padding}]
-   ;; @TODO: warn about nil padding
-   (cond
-     (and (nil? b) (nil? r)) (paint-padding canvas bitmap t l)
-     (and (nil? t) (nil? l)) (paint-padding canvas bitmap 
-                                    (- b (count bitmap)) 
-                                    (- r (count (first bitmap))))
-     :else nil)))
+  "Paint ~bitmap into ~canvas, with padding defined with :t :l or :b :r."
+  ([canvas bitmap & {:keys [t l b r] :or [] :as padding}]
+   (let [l (if (nil? l) (- r (count (first bitmap))) l)
+         t (if (nil? t) (- b (count bitmap)) t)]
+     (paint-padding canvas bitmap t l))))
 
-(defmacro in-paint [canvas & forms]
+(defmacro in-paint 
+  "Macro will insert 'paint ~canvas' in each of ~forms"
+  [canvas & forms]
   (let [forms# (map #(concat (list paint) %) forms)]
     `(-> ~canvas ~@forms#)))
 
-(defn crop [canvas w h t l b r]
+(defn crop 
+  "Crop ~canvas with ~w(idth), ~h(eight), ~t ~l or ~b ~r"
+  [canvas w h t l b r]
   (let [ta (if (pos? t) t 0)
         la (if (pos? l) l 0)
 

@@ -1,4 +1,5 @@
 (ns sss.game.gamestate
+  "Gamestate - big map with all things needed to handle gamecycle iteration. Namespace contains various functions to deal with g(ame)s(tate)"
   (:require [taoensso.timbre :refer [spy]]
             [sss.gmap.core :as gmap]
             [sss.tile.core]))
@@ -14,13 +15,15 @@
 
    :input (agent nil)
    :view (agent nil)
+   :tps (repeat 10 0)
+   :last-cycle 0
 
    :turners (if turners 
               (conj turners (resolve 'sss.game.gamestate/log-turn)) 
               [(resolve 'sss.game.gamestate/log-turn)])
    
    :meta {}
-   :tick 0})
+   :turn 0})
 
 (defn save!
   "Spit ~gs into output ~output"
@@ -32,8 +35,36 @@
   [input]
   (read (slurp input)))
 
+(defn limit-tps 
+  "Limit tps on ~gs to ~tps by Thread/sleep"
+  [gs tps]
+  (let [spent (- (System/currentTimeMillis) (:last-cycle gs))
+        spent-needed (/ 1000 tps)
+        t (int (- spent-needed spent))]
+    (if (pos? t)
+      (Thread/sleep t))))
+
+(defn tps-ruler 
+  "Update ~gs's :last-cycle timestamp"
+  [gs _]
+  (assoc gs :last-cycle (System/currentTimeMillis)))
+
+(defn tps-counter-ruler 
+  "Update ~gs's tps counter (calc. from ~last-cycle)"
+  [gs _ last-cycle]
+  (update-in gs [:tps] (fn [f]
+                         (let [spent (- (:last-cycle gs) last-cycle)]
+                         (cons
+                           (/ 1000 (if (zero? spent) 1 spent))
+                           (butlast f))))))
+
+(defn average-tps 
+  "Get average tps of ~gs"
+  [gs]
+  (int (/ (apply + (:tps gs)) (count (:tps gs)))))
+
 (defmacro update 
-  "Threaded-like macro, that'll pass ~-gs trough ~forms, but to each form additionaly will be passed static ~-gs. Form function receive 2 args - gs, -gs"
+  "Threaded-like macro, that'll pass ~-gs trough ~forms, but to each form additionaly will be passed static ~-gs. Form function receive 2 args - gs, -gs and generally called ruler"
   [-gs & forms]
   (let [forms# (map #(if (list? %)
                        (concat (list (first %)) (list -gs) (rest %))
@@ -131,17 +162,17 @@
 
 ;; Tick 
 
-(defn tick 
+(defn turn 
   "Just increment ~gs's tick counter"
   [gs]
   (update-in gs [:tick] inc))
 
-(defn tick? 
+(defn turn? 
   "Is tick in ~gs performed? (compared to 'old' ~-gs)"
   [gs -gs]
   (> (:tick gs) (:tick -gs)))
             
-(defn tick-update 
+(defn turn-update 
   "Call turners in ~gs if tick is performed (depending on ~gs and ~gs-)"
   [gs -gs]
   (if (tick? gs -gs) 
@@ -206,12 +237,14 @@
        (directed-behavior-flag gs# tick# entity# ~flag-path ~toggle-key use-fn#))))
 
 (defmacro defruler
-  "General macro for creating rulers.
+  "General macro for creating rulers. Creates fn with ~n(ame), and docstring if it's provided (first argument after name)
   Provide :directed argument, and it'll be directed.
   Provide :flag <flag-path>, :key <key>, and it'll be turned with <key> and stated in <flag>
   Last arguments should be - entity-getter, use-vars and use-forms"
   [n & defs]
-  (let [directed? (some #(= % :directed) defs)
+  (let [doc-string (if (string? (first defs)) (first defs) "")
+        defs (if-not (empty? doc-string) (rest defs) defs)
+        directed? (some #(= % :directed) defs)
         defs (filter #(not= % :directed) defs)
 
         defs-map (apply hash-map (if (odd? (count defs)) (butlast defs) defs))
@@ -224,7 +257,7 @@
         use-vars (second defs)
         use-forms (drop 2 defs)
         ]
-    `(defn ~n [gs# -gs#]
+    `(defn ~n ~doc-string [gs# -gs#]
        (let [use-fn# (fn ~use-vars ~@use-forms)
              entity# (~entity-getter gs#)
              tick# (tick? gs# -gs#)]

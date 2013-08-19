@@ -1,6 +1,7 @@
 (ns sss.core
   (:require [sss.ship.gen]
             [sss.game.ship.core :refer :all]
+            [sss.game.game :as game]
             [sss.game.core]
             [sss.ship.core]
             [sss.graphics.core :as graphics]
@@ -31,7 +32,7 @@
      (.start (reset! *gt* (Thread. #(sss.core/run-pst (sss.game.core/start)))))))
 
 (defmacro ! []
-  `(do (sss.game.ship.core/shutdown)
+  `(do (game/shutdown)
        (.interrupt @*gt*)))
 
 (defn -main [& args]

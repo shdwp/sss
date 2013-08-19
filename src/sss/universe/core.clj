@@ -1,9 +1,15 @@
 (ns sss.universe.core
   (:require [clojure.string :refer [split join]]
+            [sss.universe.social.core :as social]
+            [sss.universe.social.history :as history]
             [sss.universe.space.core :as space]))
 
 (defn gen-universe []
-  {:space (space/gen-space)})
+  (-> {:social (social/gen-social)
+       :space (space/gen-space)}
+      ;(history/process-universe)
+
+      ))
 
 (defn compare-paths [p1 p2]
   (count (take-while true? (map (fn [p1i p2i] (if (= p1i p2i) true false)) p1 p2))))

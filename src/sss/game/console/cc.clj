@@ -1,4 +1,5 @@
 (ns sss.game.console.cc 
+  "Command center - console with map, g(lobal)map and autopilot"
   (:require [sss.graphics.canvas :as canvas]
             [sss.graphics.core :as gr]
             [sss.graphics.bitmap :as bm]
@@ -13,7 +14,8 @@
             [taoensso.timbre :refer [spy]]
             ))
 
-(defn gate-menu [gs]
+(defn gate-menu 
+  [gs]
   (let [ship-path (take 5 (-> gs :console :path))
         system-path (take 3 ship-path)]
     (if (= (-> gs :console :mode) :gate)
@@ -82,8 +84,7 @@
                          (fn [c i]
                            (if (>= (uni/compare-paths [:space (:ry i) (:rx i)]
                                                       (:actor-path gs)) 3)
-                             (do (prn (:name i))
-                               [x y])
+                             [x y]
                              c))
                          c
                          (:systems d)))

@@ -1,31 +1,43 @@
 (ns sss.gmap.core
+  "Gmap - game map (tilemap)" 
   (:require 
     [sss.graphics.bitmap :as bitmap]
     [sss.tile.core :as tile]
     [sss.graphics.canvas :refer [canvas paint]]))
 
-(defn gmap [w h]
+(defn gmap 
+  "Create gmap (tilemap) with ~w(idth) and ~h(eight)"
+  [w h]
   {:w w
    :h h
    :map (canvas w h)
    :manager []
    })
 
-(defn put [gm bitmap x y]
+(defn put 
+  "Put ~bitmap on ~gm(ap) on ~x and ~y"
+  [gm bitmap x y]
   (assoc gm :map (paint (:map gm) bitmap :t y :l x)))
 
-(defn put-tile [gm tile x y]
+(defn put-tile 
+  "Put ~tile on ~gm(ap) on ~x and ~y"
+  [gm tile x y]
   (put gm (bitmap/bitmap (tile/tiles tile)) x y))
 
-(defn as-canvas
-  "Get gmap as canvas"
+(defn as-bitmap
+  "Get ~gm(ap) as bitmap"
   [gm]
   (:map gm))
 
-(defn char-at [gm x y]
-  (bitmap/char-at (as-canvas gm) x y))
+(defn char-at 
+  "Get character at ~x and ~y at ~gm(ap)"
+  [gm x y]
+  (bitmap/char-at (as-bitmap gm) x y))
 
-(defn dispatch-xy [gm x y f & args]
+;; Currently not needed \/
+
+(defn dispatch-xy 
+  [gm x y f & args]
   (update-in gm [:manager] conj (list (list x y) (list f args))))
 
 (defn dispatch-test [gm tfn f & args]
@@ -53,6 +65,6 @@
                       (:manager gm))
               ch))
           row))
-      (as-canvas gm))))
+      (as-bitmap gm))))
 
 
