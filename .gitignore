@@ -8,6 +8,8 @@ pom.xml.asc
 *.class
 *.so
 *.swp
+*.swo
+
 .lein-deps-sum
 .lein-failures
 .lein-plugins

@@ -1,7 +1,7 @@
 # sss
 
 Sci-Fi roguelike in space written in clojure. In development.
-All functions and namespaces are documented (except for some in hard development), additional help on project structure and terms you can find in doc/
+All functions and namespaces are documented (except for some in hard development), additional help on project structure and terms you can find in [docs](https://github.com/ShadowPrince/sss/blob/master/doc/intro.md)
 
 ## Usage
 
