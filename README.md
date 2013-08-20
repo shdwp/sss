@@ -1,35 +1,22 @@
 # sss
 
-FIXME: description
-
-## Installation
-
-Download from http://example.com/FIXME.
+Sci-Fi roguelike in space written in clojure. In development.
+All functions and namespaces are documented (except for some in hard development), additional help on project structure and terms you can find in doc/
 
 ## Usage
 
-FIXME: explanation
+Common leiningen project.
 
-    $ java -jar sss-0.1.0-standalone.jar [args]
+    $ lein deps
+    $ lein run
 
-## Options
-
-FIXME: listing of options this app accepts.
-
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
+There is some helpers for REPL in core namespace:
+    
+    (s!) starts game
+    (!) stops game (interrupt all threads and stop lanterna's screen)
 
 ## License
 
-Copyright © 2013 FIXME
+Copyright © 2013 ShadowPrince
 
 Distributed under the Eclipse Public License, the same as Clojure.

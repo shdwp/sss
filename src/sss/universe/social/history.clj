@@ -1,5 +1,5 @@
 (ns sss.universe.social.history
-  "Generating history of races and current political state of universe"
+  "Generating history of races and current political state of universe."
   (:require [sss.universe.random :as rnd]
             [sss.universe.planet.core :as planet]))
 

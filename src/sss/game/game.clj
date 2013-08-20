@@ -1,6 +1,6 @@
 (ns sss.game.game
+  "Root game dispatcher, all gd's aligns to it"
   (:require [sss.gui.lanterna-clojure.core :as lanclj]
-
             [sss.graphics.core :as gr]
             [sss.graphics.viewport :as view]
             [sss.graphics.bitmap :as bitmap]
