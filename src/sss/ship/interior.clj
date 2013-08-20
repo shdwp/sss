@@ -4,11 +4,15 @@
             [sss.tile.core :as tile]
             [sss.graphics.bitmap :refer [bitmap]]))
 
-(defn add-mixin [ship x y bitmap]
+(defn add-mixin 
+  "Add mixin ~bitmap at ~x and ~y to ~ship"
+  [ship x y bitmap]
   (assoc ship :mixins
          (conj (:mixins ship) {:x x :y y :bitmap bitmap})))
 
-(defn make-door [ship side a b]
+(defn make-door 
+  "Make door at ~ship, located at ~side of ~a"
+  [ship side a b]
   (let [mod-absy (partial mod-absy ship)
         mod-absx (partial mod-absx ship)
         mod-w (partial mod-w ship)
@@ -38,10 +42,3 @@
             (+ (mod-absy a) (mod-h ship)))]
     (add-mixin ship x y (bitmap (tile/tiles (m/metal-rusty-door))))))
 
-;; 00 01 02 03
-;; 10 11 12 13 
-;; 20 21 22 33
-;; 
-;;    01 02 03 04 
-;;    10 11 12 14
-;;    20 21 22 24

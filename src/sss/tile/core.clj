@@ -1,13 +1,20 @@
 (ns sss.tile.core
+  "Tile - single tile of gmap (tilemap)"
   (:require [sss.graphics.bitmap :as bitmap]))
 
-(defn get-meta [tile ks & null]
+(defn get-meta 
+  "Get metadata of ~tile at ~ks. Provide ~null if you want default value"
+  [tile ks & null]
   (get-in (:metadata tile) ks null))
 
-(defn update-meta [tile ks f]
+(defn update-meta 
+  "Update metadata of ~tile at ~ks with ifn ~f"
+  [tile ks f]
   (update-in tile (conj (list* ks) :metadata) f))
 
-(defn set-meta [tile ks v]
+(defn set-meta 
+  "Set metadata of ~tile at ~ks to ~v"
+  [tile ks v]
   (assoc-in tile (conj (list* ks) :metadata) v))
 
 (defprotocol ICharacterable
@@ -18,7 +25,7 @@
 
 (defprotocol IDoorable 
   (toggle [this])
-  (toggle [this tick]))
+  (toggle [this turn]))
 
 (defprotocol IUsable
   (turn [this gs path x y]))
@@ -29,11 +36,15 @@
 (defn tile [character passability & [metadata]]
   (Tile. character passability metadata))
 
-(defn tile? [ins]
+(defn tile? 
+  "Is ~ins instance of Tile?"
+  [ins]
   (instance? Tile ins))
 
 ;; @TODO: clean up
-(defn tiles [& [t & ts]]
+(defn tiles 
+  "Get list of tiles ~ts guaranted"
+  [& [t & ts]]
   (concat (if (some #(% t) [vector? list? set? seq?]) t (list t)) (mapcat tiles ts)))
 
 (defn tile-bitmap [t]
@@ -58,9 +69,9 @@
   nil (toggle [_ _])
   Character (toggle [_ _])
   String (toggle [_ _])
-  Tile (toggle [this tick]
+  Tile (toggle [this turn]
          (if-let [a (get-meta this [:another])]
-           (a tick)
+           (a turn)
            this)))
 
 (extend-protocol IUsable
@@ -71,14 +82,4 @@
          (if (ifn? (get-meta this [:turn]))
            ((get-meta this [:turn]) this gs path x y)
            gs)))
-
-(defn pprint [bitmap]
-  (doall
-    (map
-      (fn [row]
-        (println (reduce
-          #(str %1 (get-character %2))
-          ""
-          row)))
-      bitmap)))
 

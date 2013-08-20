@@ -1,7 +1,8 @@
 (ns sss.ship.autopilot
   (:require [sss.universe.core :as uni]))
 
-(defn enabled? [ship]
+(defn enabled? 
+  [ship]
   (boolean (get-in ship [:systems :autopilot :enabled])))
 
 (defn destination [ship]

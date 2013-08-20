@@ -4,7 +4,7 @@
 
 (def race-name-parts ["blah" "ktu" "pa" "lol" "'rva" "klin" "gon"])
 (def vowels [\a \e \i \o \u \'])
-(def fed-types ["federation", "empire", "conglomerate"])
+(def union-types ["federation", "empire", "conglomerate"])
 (def star-name-parts ["osu" "n" "uh" "bo" "ko" "lol" "kso" "uj" "ja" "rr"])
 (def text "
 It was 1999, and our new online marketing venture was finally off the ground and making a profit using an off-the-shelf conglomeration of bits and pieces of various content management, affiliate program, and ad servers. We'd hit all of the goals for our first funding tranche, and the next step was to use those millions of dollars to grow the staff from 12 to 50, half of which were software developers working directly for me.
@@ -75,15 +75,18 @@ No, the WTF is not this overly formalized, non-Agile, upfront design, big archit
       #(not ((set vowels) %))
       (:name race))))
 
-(defn gen-fed-name [fed]
-  (if (= 1 (count (:races fed)))
-    (:name (first (:races fed)))
-    (gen-word (rnd/r 2 4))))
+(defn gen-union-name [union]
+  (if (= 1 (count (:races union)))
+    (:name (first (:races union)))
+    (gen-word (rnd/r 3 5))))
 
-(defn gen-fed-type [fed]
-  (if (= 1 (count (:races fed)))
-    (first fed-types)
-    (rnd/choice fed-types)))
+(defn gen-union-type [union]
+  (if (= 1 (count (:races union)))
+    (first union-types)
+    (rnd/choice union-types)))
 
 (defn gen-star-name []
-  (gen-word (rnd/r 2 3)))
+  (gen-word (rnd/r 3 4)))
+
+(defn gen-planet-name []
+  (gen-word (rnd/r 3 4)))

@@ -22,5 +22,5 @@
   [bitmap w h x y]
   (let [t (double (+ (- y) (/ h 2)))
         l (double (+ (- x) (/ w 2)))]
-    (view-bitmap bitmap w h :t t :l l)))
+    (view-bitmap bitmap w h :t (- t) :l (- l))))
 

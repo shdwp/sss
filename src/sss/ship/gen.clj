@@ -8,9 +8,11 @@
 (let [w (m/metal-rusty-wall)
       e (m/engine)
       b (m/bed)
-      c (m/console)
+      f (m/metal-rusty-floor)
+      cc (m/cc-console)
+      dc (m/dc-console)
       _ tiles/tiles
-      blank (_ w (repeat 6 nil) w)
+      blank (_ w (repeat 6 f) w)
       top (repeat 8 w)]
 
   (defn gen-cc [_] "E")
@@ -23,7 +25,7 @@
     (bitmap (_ top)
             (_ blank)
             (_ blank)
-            (_ w nil c w w c nil w)
+            (_ w f cc w w dc f w)
             (_ blank)
             (_ blank)
             (_ top)))
@@ -31,9 +33,9 @@
   (defn gen-engine [ship]
     (bitmap (_ top)
             (_ blank)
-            (_ w nil e c e nil nil w)
-            (_ w nil e e e nil nil w)
-            (_ w nil e e e nil nil w)
+            (_ w f e e e f f w)
+            (_ w f e e e f f w)
+            (_ w f e e e f f w)
             (_ blank)
             (_ top)))
 
@@ -58,9 +60,9 @@
   (defn gen-living [ship]
     (bitmap (_ top)
             (_ blank)
-            (_ w nil b nil nil b nil w)
-            (_ w nil b nil nil b nil w)
-            (_ w nil b nil nil b nil w)
+            (_ w f b f f b f w)
+            (_ w f b f f b f w)
+            (_ w f b f f b f w)
             (_ blank)
             (_ top))))
 

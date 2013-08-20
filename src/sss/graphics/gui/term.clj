@@ -5,6 +5,8 @@
             [sss.game.gamestate :as gs]
             [clojure.string :refer [join]]))
 
+;; @TODO: cleanup
+
 (in-ns 'user)
 (def gs (atom nil))
 
@@ -29,6 +31,10 @@
 (defn actor []
   (cons :universe (:actor-path @gs)))
 
+(defn godmode []
+  (refer 'user)
+  (refer 'sss.game.gamestate))
+
 (in-ns 'sss.graphics.gui.term)
 
 (defn execute [gs string]
@@ -39,7 +45,7 @@
           gs @user/gs]
       (-> gs
           (update-in [:meta :term :lines] conj output)))
-  (catch Exception e (update-in gs [:meta :term :lines] conj (str e)))))
+  (catch Exception e (update-in gs [:meta :term :lines] conj (str string \newline e)))))
 
 (defn term-ruler [gs _]
   (let [gs (-> gs
@@ -49,7 +55,7 @@
         (gs/get-key-in gs [\`]) (update-in gs [:meta :term :active] not)
         (get-in gs [:meta :term :active]) 
         (cond
-          (gs/get-key-in gs [:enter]) 
+          (gs/get-key-in gs [:enter])
           (-> gs 
               (execute (get-in gs [:meta :term :current]))
               (update-in
@@ -83,9 +89,9 @@
             gs 
             [:meta :term :current]
             (fn [_]
-              "(s universe space 0 1 ships 0 entities 0 x 0)"))
+              "(user/godmode)"))
           :else 
-          (if-let [ch (gs/pop-key gs)]
+          (if-let [ch (gs/pop-key! gs)]
             (-> gs
                 (update-in [:meta :term :current]
                            #(let [cur (get-in gs [:meta :term :cursor] (count %))

@@ -17,46 +17,39 @@
             [taoensso.timbre :refer [spy]]
             ))
 
-(defn game-turn [gs]
-  gs)
-
 (defn quit-ruler 
   "Ruler for quitting from console"
   [gs -gs]
   (if (gs/get-key-in gs #{\q})
-    (gs/set-quit gs)
+    (gs/gd-pop gs :console)
     gs))
 
-(defn game-cycle 
-  "Main console cycle"
-  [-gs]
-  (let [gs (gs/update -gs
-                      quit-ruler
-                      ggmap/skip-ruler
-                      #((-> -gs :console :update) %1 %2) ; hook
-                      gs/tick-update)
-        ship (gs/get-universe gs (-> gs :console :path))
-        bmap (canvas/in-paint (-> gs :console :screen)
-                              ((gr/rect 50 20 \#) :t 0 :l 0)
-                              ((gr/string (str "$Console@" 
-                                               (uni/unipath (:universe gs) 
-                                                            (-> gs :console :path) 
-                                                            (:x ship) 
-                                                            (:y ship)))) :t 0 :l 0))
-        bmap ((-> gs :console :paint) bmap gs)] ; hook
-    (send (:view gs) (fn [& _] (view/view-bitmap bmap -1 -1 :t 0 :l 0)))
-    (Thread/sleep 33)
-    (if (gs/quit? gs)
-      (gs/quitted gs)
-      (recur gs))))
+(defn update [gs gs-]
+  (gs/update gs
+             quit-ruler))
 
-(defn align 
-  "Align to game on ~gs. ~path is path in universe to console, ~t is console hook-map."
-  [gs path t]
-  (game-cycle (-> gs
-                  (assoc :console {:update (:update t)
-                                   :paint (:paint t)
-                                   :path path
-                                   :mode :info
-                                   :screen (canvas/canvas 50 20)})
-                  (gs/add-turner game-turn))))
+(defn paint [canvas gs]
+  (let [path (gs/gd-data gs :console :path)
+        ship (gs/get-universe gs path)]
+    (canvas/in-paint 
+      canvas
+      ((gr/rect 50 30 \#) :t 0 :l 0)
+      ((gr/string (str "$Console@" 
+                       (uni/unipath (:universe gs) 
+                                    path
+                                    (:x ship) 
+                                    (:y ship)))) :t 0 :l 0)
+      )))
+
+(defn align
+  [gs path]
+  (gs/gd-align
+    gs
+    {:name :console 
+     :block-input true
+     :block-paint true
+     :update update
+     :paint paint}
+    {:path path}
+    ))
+

@@ -71,3 +71,17 @@
   (map #(take w (drop (-> l Math/abs int) %)) 
        (take h (drop (-> t Math/abs int) canvas)))))
 
+(defn crop 
+  [canvas w h t l _ _]
+  (let [
+        ta (if (neg? t) (- t) 0)
+        la (if (neg? l) (- l) 0)
+
+        t (if (neg? t) 0 t)
+        l (if (neg? l) 0 l)
+
+        new-w (+ (count (first canvas)) la)
+        canvas (concat  (repeat ta (repeat new-w \space))
+                       (map #(concat (repeat la \space) %) canvas))]
+  (map #(take w (drop l %)) (take h (drop t canvas)))))
+

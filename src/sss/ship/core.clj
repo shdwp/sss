@@ -20,33 +20,40 @@
                          {:name "hold" :x 2 :y 1 :gen #(gen-hold %)} 
                          ]})
 
-(defn apply-form [gm ship]
+(defn apply-form 
+  "Apply form (background) of ~ship to ~gm(ap)"
+  [gm ship]
   (gmap/put
     gm
     (form/gen-form ship)
     0 
     0))
 
-(defn apply-mixins [gm ship]
+(defn apply-mixins 
+  "Apply mixins (doors, etc) of ~ship to ~gm(ap)"
+  [gm ship]
   (reduce
     (fn [gm mixin]
       (gmap/put gm (:bitmap mixin) (:x mixin) (:y mixin)))
     gm
     (:mixins ship)))
 
-(defn apply-modules [gm ship]
-  (reduce #(do 
-             (gmap/put 
-               %1 
-               (:map (second %2))
-               (* (:x (second %2)) (first (:module-size ship)))
-               (* (:y (second %2)) (second (:module-size ship)))))
+(defn apply-modules 
+  "Apply modules of ~ship to ~gm(ap)"
+  [gm ship]
+  (reduce #(gmap/put 
+             %1 
+             (:map (second %2))
+             (* (:x (second %2)) (first (:module-size ship)))
+             (* (:y (second %2)) (second (:module-size ship))))
           gm
           (filter 
             #(not (nil? (second %))) 
             (map-indexed #(vector %1 %2) (:scheme ship)))))
 
-(defn gen-map [-ship]
+(defn gen-map 
+  "Generate ~ship gmap"
+  [-ship]
   (let [ship -ship
         gm (gmap/gmap 
              (inc (* (first (:size ship)) (first (:module-size ship))))
@@ -56,3 +63,8 @@
         (apply-modules ship)
         (apply-mixins ship)
         )))
+
+(defn move [ship x y]
+  (-> ship
+      (update-in [:x] #(+ % x))
+      (update-in [:y] #(+ % y))))

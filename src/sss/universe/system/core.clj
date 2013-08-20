@@ -1,4 +1,5 @@
 (ns sss.universe.system.core
+  "System - space component representing star system"
   (:require [sss.graphics.canvas :as can]
             [sss.universe.random :as rnd]
             [sss.universe.social.lingvo :as lin]
@@ -6,7 +7,9 @@
             [sss.graphics.core :as gr]
             [sss.graphics.bitmap :as bm]))
 
-(defn gen-system [row]
+(defn gen-system 
+  "Generate system at space ~row"
+  [row]
   (-> 
     {:name (rnd/unique row :name lin/gen-star-name)
      :gate {:x (rnd/r 2 18) :y (rnd/r 2 18)}
@@ -19,15 +22,21 @@
     (#(assoc % :planets (planet/gen-planets %)))
     ))
 
-(defn system-summary [system]
+(defn system-summary 
+  "Get ~system summary"
+  [system]
   {:name (:name system)
    :planets (count (:planets system))
    :ships (count (:ships system))})
 
-(defn gate-summary [gate]
+(defn gate-summary 
+  "Get ~gate summary"
+  [gate]
   {:description "gates are only items that have description, you should care of it"})
 
-(defn pointed-data [system tick]
+(defn pointed-data 
+  "Get pointed data of ~system at ~turn"
+  [system turn]
   (let [initconj (fn [v d]
                    (if (coll? v)
                      (conj v d)
@@ -53,7 +62,7 @@
                               (let [;; @TODO: you're know what to do
                                     x (* (:track-size system) (:track planet))
                                     y 0
-                                    a ((:pos planet) tick)
+                                    a ((:pos planet) turn)
                                     v [(- (* x (Math/cos a)) (* y (Math/sin a)))
                                        (+ (* x (Math/sin a)) (* y (Math/cos a)))]]
                                 (update-in d 
@@ -72,7 +81,10 @@
         (apply-gate system)
         (apply-ships system))))
 
-(defn visualize [system tick]
+;; @TODO
+(defn visualize 
+  "Visualize pointed data"
+  [system turn]
   (reduce
     (fn [c [x row]]
       (reduce
@@ -94,4 +106,4 @@
             items))
         c row))
     (can/canvas 120 120)
-    (pointed-data system tick)))
+    (pointed-data system turn)))

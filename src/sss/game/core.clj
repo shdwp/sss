@@ -41,7 +41,7 @@
       ;; @TODO: check if ship is near gate, if else - put it to the last
       (-> (if (< (uni/compare-paths actor-path ship) 4)
             (update-in gs [:actor-path] (fn [_] 
-                                        (concat 
+                                        (concat
                                           new-ship-path 
                                           (take-last 2 (:actor-path gs)))))
             gs)
@@ -74,5 +74,5 @@
 (defn start 
   "Start game with ~gs (or without)"
   [& [gs]]
-  (game-game/start (gen-gs)))
+  (game-game/start (game-ship/align (time (gen-gs)))))
 

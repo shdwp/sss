@@ -1,24 +1,51 @@
 (ns sss.universe.space.core
+  "Space - part of universe representing space"
   (:require [sss.universe.system.core :as system]
             [sss.universe.random :as rnd]
             [sss.graphics.bitmap :as bm]
             [sss.graphics.core :as gr]
             [sss.graphics.canvas :as can]))
 
-(defn gen-space []
+(def rows-bounds [6 12])
+(def cols-bounds [6 12])
+
+(defn gen-row []
+  "Generate row of space"
+  (reduce
+    (fn [row _]
+      (conj row
+            (system/gen-system row)))
+    []
+    (range (apply rnd/r cols-bounds))))
+
+(defn gen-space 
+  "Generate space by rows, threaded (1 thread per row)"
+  []
+  (let [result (agent [])
+        rows (apply rnd/r rows-bounds)]
+    (mapv
+      (fn [i]
+        (-> #(send result conj (gen-row))
+            Thread.
+            .start))
+      (range rows))
+    (while (< (count @result) rows)
+      (Thread/sleep 100))
+    @result))
+
+(defn old-gen-space 
+  "Generate space"
+  []
   (reduce
     (fn [systems rowi]
       (conj systems
-            (reduce
-              (fn [row celli]
-                (conj row
-                      (system/gen-system row)))
-              []
-              (range (rnd/r 6 12)))))
+            (gen-row)))
     []
-    (range (rnd/r 6 12))))
+    (range (apply rnd/r rows-bounds))))
 
-(defn get-near-systems [space l x y]
+(defn get-near-systems 
+  "Get systems from ~space near (< ~l(ength)) ~x ~y"
+  [space l x y]
   (filter (comp not nil? first)
           (reduce
             (fn [res yi]
@@ -32,6 +59,7 @@
             (range (- y l) (+ y l 1)))))
 
 (defn pointed-data
+  "Get pointed-data of ~space"
   [space & {:keys [margin-x margin-y paint-cb] 
             :or {margin-x 10 margin-y 4 paint-cb (fn [c & _] c)}}]
   (let [initconj (fn [v d]
@@ -57,6 +85,7 @@
       (map vector space (range)))))
 
 (defn visualize
+  "Visualize pointed-data ~data"
   [data & {:keys [margin-x margin-y paint-cb] 
             :or {margin-x 1 margin-y 1 paint-cb (fn [c & _] c)}
             :as kv}]
@@ -83,35 +112,3 @@
     (can/canvas 500 500)
     data))
 
-
-(defn visualize2
-  [space & {:keys [margin-x margin-y paint-cb] 
-            :or {margin-x 6 margin-y 1 paint-cb (fn [c & _] c)}}]
-  (let [canvas (can/canvas 120 120)]
-    (reduce
-      (fn [c row-y]
-        (let [y (inc (second row-y))
-              row (first row-y)]
-          (reduce
-            (fn [c system-x]
-              (let [x (inc (second system-x))
-                    system (first system-x)
-                    fx (+ (first (:offset system)) x 5)
-                    fy (+ (second (:offset system)) y 5)]
-                (paint-cb (can/in-paint 
-                            c
-                            ((bm/bitmap "*") 
-                             :l (* fx margin-x) 
-                             :t (* fy margin-y))
-                            ((gr/string (:name system)) 
-                             :l (* fx margin-x) 
-                             :t (dec (* fy margin-y)))) 
-                          (* fx margin-x) 
-                          (* fy margin-y)
-                          (second system-x)
-                          (second row-y)
-                          system)))
-            c
-            (map vector row (range)))))
-      canvas
-      (map vector space (range)))))

@@ -8,16 +8,8 @@
             [sss.tile.core :as tile])
   (:gen-class))
 
-(defmacro dev []
-  `(do 
-     (in-ns 'user)
-     (load "autoload")
-     (autoload/autoload-thread! "src/sss" true)
-     (in-ns 'sss.core)
-     nil))
-
-(def actor
-  [:universe :space 0 1 :ships 0 :entities 0])
+;; Dev stuff
+;; Notice me about migrating to Stuart Sierra's (reload)
 
 (defmacro run-pst [& forms]
   `(try
