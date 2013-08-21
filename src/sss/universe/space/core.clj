@@ -4,7 +4,8 @@
             [sss.universe.random :as rnd]
             [sss.graphics.bitmap :as bm]
             [sss.graphics.core :as gr]
-            [sss.graphics.canvas :as can]))
+            [sss.graphics.canvas :as can]
+            [sss.universe.util :refer :all]))
 
 (def rows-bounds [6 12])
 (def cols-bounds [6 12])
@@ -59,56 +60,37 @@
             (range (- y l) (+ y l 1)))))
 
 (defn pointed-data
-  "Get pointed-data of ~space"
+  "Get pointed-data of ~space, @return pointed data"
   [space & {:keys [margin-x margin-y paint-cb] 
             :or {margin-x 10 margin-y 4 paint-cb (fn [c & _] c)}}]
-  (let [initconj (fn [v d]
-                   (if (coll? v)
-                     (conj v d)
-                     [d]))
-        data {}]
-    (reduce
-      (fn [d [row y]]
-        (reduce
-          (fn [d [system x]]
-            (update-in d
-                       [(+ 2 (-> system :offset first) (* x margin-x))
-                        (+ 2 (-> system :offset second) (* y margin-y))
-                        :systems]
-                       initconj 
-                       (-> system
-                           (assoc :rx x)
-                           (assoc :ry y))))
-          d
-          (map vector row (range))))
-      data
-      (map vector space (range)))))
+  (reduce-space
+    (fn [d x y system]
+      (update-in 
+        d
+        [(+ 2 (-> system :offset first) (* x margin-x))
+         (+ 2 (-> system :offset second) (* y margin-y))
+         :systems]
+        initconj 
+        (-> system
+            (assoc :rx x)
+            (assoc :ry y))))
+    {}
+    space))
+
 
 (defn visualize
-  "Visualize pointed-data ~data"
-  [data & {:keys [margin-x margin-y paint-cb] 
-            :or {margin-x 1 margin-y 1 paint-cb (fn [c & _] c)}
-            :as kv}]
-  (reduce
-    (fn [c [x row]]
-      (reduce
-        (fn [c [y kv]]
-          (reduce
-            (fn [c [k v]]
-              (reduce
-                (fn [c i]
-                  (paint-cb
-                    (can/in-paint
-                      c
-                      ((bm/bitmap "`yellow:*") :t y :l x)
-                      ((gr/string (str "`magenta:" (:name i))) :t (dec y) :l (- x 1)))
-                  x y (:rx i) (:ry i) i))
-                c
-                v))
-            c
-            kv))
-        c
-        row))
+  "Visualize pointed data ~data, applying ~paint-callback to every item.
+  Paint callback - fn with [canvas, paint-x paint-y system-x system-y system]
+  @return canvas"
+  [data & {:keys [paint-callback] :or [paint-callback (fn [c & _] c)]}]
+  (reduce-pdata 
+    (fn [c x y k o]
+      (paint-callback
+        (can/in-paint
+          c
+          ((bm/bitmap "`yellow:*") :t y :l x)
+          ((gr/string (str "`magenta:" (:name o))) :t (dec y) :l (- x 1)))
+        x y (:rx o) (:ry o) o))
     (can/canvas 500 500)
     data))
 

@@ -22,6 +22,7 @@
   
   :repl-options {:timeout 120000
                  :init (do ;; my dev stuff, dont ask about this
+                           ;; anyway, I should use Stuart Sierra's reload
                          (in-ns 'user)
                          (load "autoload") 
                          (autoload/autoload-thread! "src/sss") 

@@ -68,11 +68,11 @@
       :cc-console :maps :gmap :bitmap
       (space/visualize
         (gs/gd-data gs :cc-console :maps :gmap :data)
-        :paint-cb (fn [c fx fy x y s]
-                    (if (>= (uni/compare-paths [:space y x] 
-                                               (:actor-path gs)) 3)
-                      (canvas/paint c (bm/bitmap "@") :t fy :l (dec fx))
-                      c))))
+        :paint-callback (fn [c fx fy x y s]
+                          (if (>= (uni/compare-paths [:space y x] 
+                                                     (:actor-path gs)) 3)
+                            (canvas/paint c (bm/bitmap "@") :t fy :l (dec fx))
+                            c))))
     gs))
 
 (defn pointable-map [gs x y]

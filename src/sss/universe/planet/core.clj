@@ -100,6 +100,7 @@
   "Get ~planet summary info"
   [planet]
   {:name (:name planet)
+   :race (:race planet)
    :type (:type planet)
    :core (:core planet)
    :atmosphere (str (:atmosphere planet))

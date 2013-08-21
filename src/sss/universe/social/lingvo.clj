@@ -77,7 +77,7 @@ No, the WTF is not this overly formalized, non-Agile, upfront design, big archit
 
 (defn gen-union-name [union]
   (if (= 1 (count (:races union)))
-    (:name (first (:races union)))
+    (first (:races union))
     (gen-word (rnd/r 3 5))))
 
 (defn gen-union-type [union]

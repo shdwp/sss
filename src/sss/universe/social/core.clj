@@ -4,6 +4,8 @@
   (:require [sss.universe.random :as rnd]
             [sss.universe.social.lingvo :as lin]))
 
+(def union-colors [:white :blue :magenta :yellow :red :green])
+
 (defn gen-race 
   "Generate race in ~races"
   [races]
@@ -16,8 +18,9 @@
   []
   (reduce
     (fn [races _]
-      (conj races (gen-race races)))
-    []
+      (let [race (gen-race races)]
+        (assoc races (:name race) race)))
+    {}
     (range (rnd/r 3 5))))
 
 (defn races-unions-partition 
@@ -25,10 +28,10 @@
   [races]
   (let [unions-count (rnd/r 2 (dec (count races)))]
     (reduce
-      (fn [unions race]
+      (fn [unions [k race]]
         (let [to (rnd/r (dec (count unions)))]
-          (update-in unions [to] conj race)))
-      (mapv vector (take unions-count races))
+          (update-in unions [to] conj k)))
+      (mapv (fn [[k _]] [k]) (take unions-count races))
       (drop unions-count races))))
 
 (defn gen-union 
@@ -43,10 +46,10 @@
   "Gen unions of ~races"
   [races]
   (reduce
-    (fn [unions race-partition]
-      (conj unions (gen-union unions race-partition)))
+    (fn [unions [i race-partition]]
+      (conj unions (assoc (gen-union unions race-partition) :color (nth union-colors i))))
     []
-    (races-unions-partition races)))
+    (map vector (range) (races-unions-partition races))))
 
 (defn gen-social 
   "Generate social component of universe"

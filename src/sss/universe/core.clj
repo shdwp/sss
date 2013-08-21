@@ -2,7 +2,8 @@
   "Universe - universe of a game, containing material and spiritual aspects"
   (:require [clojure.string :refer [split join]]
             [sss.universe.social.core :as social]
-            [sss.universe.social.history :as history]
+            [sss.universe.social.homeland :as homeland]
+            [sss.universe.social.politics :as politics]
             [sss.universe.space.core :as space]))
 
 (defn gen-universe 
@@ -10,7 +11,8 @@
   []
   (-> {:social (time (social/gen-social))
        :space (time (space/gen-space))}
-      ;(history/process-universe)
+      (homeland/process-universe)
+      (politics/process-universe)
 
       ))
 
@@ -34,4 +36,3 @@
          x (Integer/parseInt (first coords))
          y (Integer/parseInt (second coords))]
      )))
-
