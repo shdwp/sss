@@ -6,11 +6,11 @@
   (let [capitals (map 
                    #(-> (get (-> universe :social :races) %) :homeland) 
                    (:races union))]
-    capitals
+   capitals 
   ))
 
 (defn process-universe [universe]
-  (let [capitals (map choose-capitals (repeat universe) (-> universe :social :unions))]
+  (let [capitals (mapcat choose-capitals (repeat universe) (-> universe :social :unions))]
     (prn capitals)
     (update-in 
       universe 

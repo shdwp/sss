@@ -133,10 +133,7 @@
           (str "autopilot " (if (autopi/enabled? ship) "on" "off"))
           (str "to " (uni/unipath (:universe gs)
                                   (autopi/destination ship)
-                                  -1 -1))
-          (str " ")
-          (str "m - system map, M - universe map, g - gate menu")
-          )
+                                  -1 -1)))
         :t 1 :l 2)
       :map
       (canvas/in-paint

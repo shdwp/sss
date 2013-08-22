@@ -3,10 +3,37 @@
   (:require [lanterna.screen :as s]
             [clojure.string :refer [join]]
             [sss.graphics.canvas :as can]
+            [taoensso.timbre :as timbre]
+            [taoensso.timbre.profiling :refer [p]]
             [sss.tile.core :as tile]))
 
 (def ^:dynamic *screen* (atom nil))
 (def ^:dynamic *input-thread* (atom nil))
+
+(defn test! []
+  (let [scr (reset! *screen* (s/get-screen :swing))
+        counter (agent 0)
+        last-frame (atom 0)
+        fps (atom [0 0 0 0 0 0 0 0])]
+    (s/start scr)
+    (while (< @counter 300)
+      (p :last-frame-reset (reset! last-frame (System/currentTimeMillis)))
+      (p :counter-inc (send counter inc))
+      (p :mapv-and-put-string
+         (mapv
+           #(p :put-string (s/put-string scr 0 % (join (repeat 25 (str @counter)))))
+           (range 30)))
+      (p :put-fps 
+         (s/put-string scr 50 0 (str "|fps_" (int (/ (apply + @fps) (count @fps))) "|")))
+      (p :redraw (s/redraw scr))
+      (p :sleep (limit-fps @last-frame 60))
+      (p :update-fps 
+         (swap! fps (fn [o]
+                      (cons
+                        (/ 1000 (- (System/currentTimeMillis) @last-frame))
+                        (butlast o)))))
+
+      )))
 
 (defn limit-fps [last-frame fps]
   (let [spent (- (System/currentTimeMillis) last-frame)
@@ -18,8 +45,8 @@
   "View agent ~aview, collect input into ~ainput. Blocks current thread, so should be called in separate thread."
   [aview ainput]
   (let [last-frame (atom 0)
-        fps (atom [0 0 0 0 0 0 0 0 0 0])]
-    (reset! *screen* (s/get-screen :swing))
+        fps (atom [0 0 0 0 0 0 0 0 0 0])
+        screen (reset! *screen* (s/get-screen :swing))]
     (->> (fn [] 
            (while true
              (if-let [inp (s/get-key @*screen*)]
@@ -28,10 +55,9 @@
          Thread.
          (reset! *input-thread*)
          .start)
-    (s/start @*screen*)
+    (s/start screen)
     (while true
       (reset! last-frame (System/currentTimeMillis))
-      (s/clear @*screen*)
       (doall (map-indexed
                (fn [y row]
                  (doall (map-indexed
@@ -40,15 +66,15 @@
                                   fg (if (map? ch) (:fg ch) :default)
                                   bg (if (map? ch) (:bg ch) :default)
                                   c (if (map? ch) (:ch ch) ch)]
-                              (s/put-string @*screen* x y (str c) {:fg fg :bg bg})))
+                              (s/put-string screen x y (str c) {:fg fg :bg bg})))
                           row)))
                @aview))
-      (s/put-string @*screen* 50 0 (str "|fps_" (int (/ (apply + @fps) (count @fps)))))
-      (s/put-string @*screen* 50 1 (str "|w_" (can/w @aview) " h_" (can/h @aview)))
-      (s/put-string @*screen* 50 2 (join (repeat 20 "-")))
-      (s/redraw @*screen*)
+      (s/put-string screen 50 0 (str "|fps_" (int (/ (apply + @fps) (count @fps)))))
+      (s/put-string screen 50 1 (str "|w_" (can/w @aview) " h_" (can/h @aview)))
+      (s/put-string screen 50 2 (join (repeat 20 "-")))
+      (s/redraw screen)
       
-      (limit-fps @last-frame 60)
+      (limit-fps @last-frame 30)
       (swap! fps (fn [o]
                    (cons
                      (/ 1000 (- (System/currentTimeMillis) @last-frame))
