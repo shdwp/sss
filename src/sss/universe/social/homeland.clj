@@ -4,6 +4,7 @@
             [sss.universe.planet.core :as planet]
             [sss.universe.util :refer :all]))
 
+;; @TODO: perform check if planet is already a homeland of smbd
 (defn choose-history-planet [space race]
   (let [system-y (rnd/r 0 (dec (count space)))
         system-x (rnd/r 0 (count (nth space system-y)))
@@ -67,9 +68,8 @@
   (let [races (-> universe :social :races)
         homelands (apply merge {} 
                          (map 
-                           (fn [space [k race]]
-                             [k (choose-history-planet space race)])
-                           (repeat (:space universe)) 
+                           (fn [[k race]]
+                             [k (choose-history-planet (:space universe) race)])
                            races))]
     (update-in 
       (-> universe

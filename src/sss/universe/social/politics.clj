@@ -11,7 +11,6 @@
 
 (defn process-universe [universe]
   (let [capitals (mapcat choose-capitals (repeat universe) (-> universe :social :unions))]
-    (prn capitals)
     (update-in 
       universe 
       [:space]

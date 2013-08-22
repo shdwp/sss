@@ -9,8 +9,8 @@
 (defn gen-universe 
   "Generate universe"
   []
-  (-> {:social (time (social/gen-social))
-       :space (time (space/gen-space))}
+  (-> {:social (social/gen-social)
+       :space (space/gen-space)}
       (homeland/process-universe)
       (politics/process-universe)
 

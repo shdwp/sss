@@ -10,6 +10,12 @@
 (def ^:dynamic *screen* (atom nil))
 (def ^:dynamic *input-thread* (atom nil))
 
+(defn limit-fps [last-frame fps]
+  (let [spent (- (System/currentTimeMillis) last-frame)
+        spent-needed (/ 1000 fps)
+        sleep (- spent-needed spent)]
+    (if (pos? sleep) (Thread/sleep sleep))))
+
 (defn test! []
   (let [scr (reset! *screen* (s/get-screen :swing))
         counter (agent 0)
@@ -34,12 +40,6 @@
                         (butlast o)))))
 
       )))
-
-(defn limit-fps [last-frame fps]
-  (let [spent (- (System/currentTimeMillis) last-frame)
-        spent-needed (/ 1000 fps)
-        sleep (- spent-needed spent)]
-    (if (pos? sleep) (Thread/sleep sleep))))
 
 (defn view! 
   "View agent ~aview, collect input into ~ainput. Blocks current thread, so should be called in separate thread."

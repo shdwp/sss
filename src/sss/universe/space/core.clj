@@ -7,8 +7,8 @@
             [sss.graphics.canvas :as can]
             [sss.universe.util :refer :all]))
 
-(def rows-bounds [6 12])
-(def cols-bounds [6 12])
+(def rows-bounds [6 10])
+(def cols-bounds [6 10])
 
 (defn gen-row []
   "Generate row of space"
