@@ -3,14 +3,13 @@
   (:require [sss.graphics.canvas :as canvas]
             [sss.graphics.core :as gr]
             [sss.graphics.bitmap :as bm]
-            [sss.graphics.viewport :as view]
+            [sss.graphics.gui.core :as gui]
             [sss.game.gamestate :as gs]
             [sss.universe.core :as uni]
             [sss.universe.system.core :as sys]
             [sss.universe.planet.core :as planet]
             [sss.universe.space.core :as space]
             [sss.ship.autopilot :as autopi]
-            [sss.graphics.gui.core :as gui]
             [taoensso.timbre :refer [spy]]
             ))
 

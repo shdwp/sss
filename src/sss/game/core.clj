@@ -73,6 +73,5 @@
 
 (defn start 
   "Start game with ~gs (or without)"
-  [& [gs]]
-  (game-game/start (game-ship/align (time (gen-gs)))))
+  ([] (game-game/start (game-ship/align (gen-gs)))))
 

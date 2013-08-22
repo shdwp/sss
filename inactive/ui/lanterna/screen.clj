@@ -1,4 +1,4 @@
-(ns sss.gui.lanterna.screen
+(ns sss.ui.lanterna.screen
   (:require [sss.graphics.viewport :refer [nth-in]]
             [taoensso.timbre.profiling :refer [p profile]]
             [sss.graphics.core :as graphics]

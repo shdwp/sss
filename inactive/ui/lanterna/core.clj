@@ -1,4 +1,4 @@
-(ns sss.gui.lanterna.core
+(ns sss.ui.lanterna.core
   (:import java.nio.charset.Charset
            com.googlecode.lanterna.terminal.Terminal
            com.googlecode.lanterna.TerminalFacade
@@ -9,7 +9,7 @@
   (:require [taoensso.timbre.profiling :as profiling :refer [p profile]]
             [sss.ship.core :as ship]
             [sss.gmap.core :as gmap]
-            [sss.gui.lanterna.screen :refer :all]
+            [sss.ui.lanterna.screen :refer :all]
             [sss.graphics.viewport :as view]))
 
 (defn screen []

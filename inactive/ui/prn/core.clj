@@ -1,4 +1,4 @@
-(ns sss.gui.prn.core
+(ns sss.ui.prn.core
   (:require [sss.tile.core :as tile]))
 
 (defn view! [view-ag _]

@@ -1,22 +1,15 @@
 (ns sss.game.ship.core
   "Game-dispatcher for game on ship"
-  (:require [sss.gui.lanterna-clojure.core :as lanclj]
-            [sss.gui.prn.core :as prngui]
-
-            [sss.graphics.core :as gr]
+  (:require [sss.graphics.core :as gr]
             [sss.graphics.viewport :as view]
             [sss.graphics.bitmap :as bitmap]
             [sss.graphics.canvas :as canvas]
-            [sss.graphics.gui.term :as term]
             [sss.ship.core :as ship]
             [sss.gmap.core :as gmap]
-            [sss.entity.actor :as actor]
             [sss.entity.core :as entity]
-            [sss.tile.core :as tile]
             [sss.game.gamestate :as gs]
             [sss.game.gmap :as ggmap]
-            [taoensso.timbre :refer [spy]]
-            ))
+            [taoensso.timbre :refer [spy]]))
 
 (defn update [gs -gs]
   (gs/update gs

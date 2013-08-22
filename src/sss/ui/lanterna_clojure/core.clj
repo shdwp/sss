@@ -1,4 +1,4 @@
-(ns sss.gui.lanterna-clojure.core
+(ns sss.ui.lanterna-clojure.core
   "GUI using lanterna-clojure library, currenly used (but not primary becose low perfomance)"
   (:require [lanterna.screen :as s]
             [clojure.string :refer [join]]

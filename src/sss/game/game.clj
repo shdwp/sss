@@ -1,20 +1,12 @@
 (ns sss.game.game
   "Root game dispatcher, all gd's aligns to it"
-  (:require [sss.gui.lanterna-clojure.core :as lanclj]
+  (:require [sss.ui.lanterna-clojure.core :as ui]
             [sss.graphics.core :as gr]
-            [sss.graphics.viewport :as view]
-            [sss.graphics.bitmap :as bitmap]
             [sss.graphics.canvas :as canvas]
             [sss.graphics.gui.term :as term]
-            [sss.ship.core :as ship]
             [sss.gmap.core :as gmap]
-            [sss.entity.actor :as actor]
-            [sss.entity.core :as entity]
-            [sss.tile.core :as tile]
             [sss.game.gamestate :as gs]
-            [sss.game.gmap :as ggmap]
-            [taoensso.timbre :refer [spy]]
-            ))
+            [taoensso.timbre :refer [spy]]))
 
 (defn game-cycle 
   [gs-]
@@ -39,7 +31,7 @@
 (defn start 
   "Start game on ship with ~gs"
   [gs]
-  (->> #(lanclj/view! (:view gs) (-> gs :input :buffer))
+  (->> #(ui/view! (:view gs) (-> gs :input :buffer))
        Thread.
        (reset! *gui-thread*)
        .start)
@@ -48,5 +40,5 @@
 (defn shutdown 
   "Shutdown game (must be called for proper gui threads interruption)"
   []
-  (lanclj/shutdown!)
+  (ui/shutdown!)
   (.interrupt @*gui-thread*))
