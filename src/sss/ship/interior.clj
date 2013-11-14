@@ -6,9 +6,9 @@
 
 (defn add-mixin 
   "Add mixin ~bitmap at ~x and ~y to ~ship"
-  [ship x y bitmap]
+  [ship x y]
   (assoc ship :mixins
-         (conj (:mixins ship) {:x x :y y :bitmap bitmap})))
+         (conj (:mixins ship) {:x x :y y :gen 'sss.ship.gen/gen-rusty-door})))
 
 (defn make-door 
   "Make door at ~ship, located at ~side of ~a"
@@ -40,5 +40,5 @@
             (mod-absy a)
             (= side :bottom)
             (+ (mod-absy a) (mod-h ship)))]
-    (add-mixin ship x y (bitmap (tile/tiles (m/metal-rusty-door))))))
+    (add-mixin ship x y )))
 

@@ -45,7 +45,7 @@
               #(reduce (fn [planets planet]
                          (conj planets (assoc planet 
                                               :race 
-                                              (if (planet/can-live? planet race)
+                                              (if (or true (planet/can-live? planet race)) ;; @TODO
                                                 race
                                                 :unoccupied))))
                        [] 
@@ -80,3 +80,5 @@
            (spread-races homelands)
            ))))
 
+(defn system-race [universe system]
+  (some #(if (not= :unoccupied (:race %)) (:race %) false) (:planets system)))

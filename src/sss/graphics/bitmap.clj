@@ -10,15 +10,15 @@
   (map (fn [row]
          (if (and (string? row) ((set row) \:))
            (let [parts (split row #"\:")]
-             (rest 
+             (rest
                (reduce
                  (fn [res part]
-                   (cond 
-                     (.startsWith part "`") 
+                   (cond
+                     (.startsWith part "`")
                      (conj (rest res) (assoc (first res) :fg (-> part rest join keyword)))
                      (.startsWith part "~")
                      (conj (rest res) (assoc (first res) :bg (-> part rest join keyword)))
-                     :else (concat (vec res) 
+                     :else (concat (vec res)
                                    (map #(assoc (first res) :ch %) part))
                      ))
                  [{}]

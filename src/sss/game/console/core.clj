@@ -6,6 +6,7 @@
             [sss.game.gamestate :as gs]
             [sss.universe.core :as uni]
             [taoensso.timbre :refer [spy]]
+            [sss.game.gmap :as ggmap]
             ))
 
 (defn quit-ruler 
@@ -17,14 +18,15 @@
 
 (defn update [gs gs-]
   (gs/update gs
+             ggmap/skip-ruler
              quit-ruler))
 
 (defn paint [canvas gs]
   (let [path (gs/gd-data gs :console :path)
         ship (gs/get-universe gs path)]
     (canvas/in-paint 
-      canvas
-      ((gr/rect 50 30 \#) :t 0 :l 0)
+      (canvas/crop canvas 30 20 0 0 0 0)
+      ((gr/rect 30 20 \#) :t 0 :l 0)
       ((gr/string (str "$Console@" 
                        (uni/unipath (:universe gs) 
                                     path

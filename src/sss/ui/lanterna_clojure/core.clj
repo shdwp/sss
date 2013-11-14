@@ -41,20 +41,23 @@
 
       )))
 
+(defn input! [screen ainput]
+  (->> (fn [] 
+         (while true
+           (if-let [inp (s/get-key @*screen*)]
+             (send ainput #(conj (vec (rest %)) inp)))
+           (Thread/sleep 10)))
+       Thread.
+       (reset! *input-thread*)
+       .start))
+
 (defn view! 
   "View agent ~aview, collect input into ~ainput. Blocks current thread, so should be called in separate thread."
   [aview ainput]
   (let [last-frame (atom 0)
         fps (atom [0 0 0 0 0 0 0 0 0 0])
         screen (reset! *screen* (s/get-screen :swing))]
-    (->> (fn [] 
-           (while true
-             (if-let [inp (s/get-key @*screen*)]
-               (send ainput #(conj (vec (rest %)) inp)))
-             (Thread/sleep 10)))
-         Thread.
-         (reset! *input-thread*)
-         .start)
+    (input! screen ainput)
     (s/start screen)
     (while true
       (reset! last-frame (System/currentTimeMillis))
@@ -74,7 +77,7 @@
       (s/put-string screen 50 2 (join (repeat 20 "-")))
       (s/redraw screen)
       
-      (limit-fps @last-frame 30)
+      (limit-fps @last-frame 20)
       (swap! fps (fn [o]
                    (cons
                      (/ 1000 (- (System/currentTimeMillis) @last-frame))

@@ -1,5 +1,6 @@
 (ns sss.universe.util
-  (:require [sss.graphics.canvas :as can]))
+  (:require [sss.graphics.canvas :as can]
+            [sss.universe.random :as rnd]))
 
 (defn initconj [v d]
   (if (coll? v)
@@ -15,6 +16,13 @@
                   row)))
          space)))
 
+(defn move-with 
+  "Move smth's angle position with ~speed"
+  [start speed turn]
+  (let [moved (double (+ (* turn speed) start))
+        years (int (/ moved 360))]
+    (- moved (* years 360))))
+
 (defn reduce-space [f accum space]
   (reduce
     (fn [d [row y]]
@@ -28,9 +36,9 @@
 
 (defn reduce-pdata [f accum pdata]
   (reduce
-    (fn [c [x row]]
+    (fn [c [y row]]
       (reduce
-        (fn [c [y kv]]
+        (fn [c [x kv]]
           (reduce
             (fn [c [k v]]
               (reduce

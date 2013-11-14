@@ -9,12 +9,13 @@
 (defn gen-universe 
   "Generate universe"
   []
-  (-> {:social (social/gen-social)
-       :space (space/gen-space)}
-      (homeland/process-universe)
-      (politics/process-universe)
+  (let [uni (-> {:social (social/gen-social)
+                 :space (space/gen-space)}
+                (homeland/process-universe)
+                (politics/process-universe)
 
-      ))
+                )]
+  uni))
 
 (defn compare-paths 
   "Compare path (in-universe) ~p1 with ~p2"

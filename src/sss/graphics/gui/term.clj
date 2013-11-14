@@ -7,7 +7,7 @@
 
 ;; @TODO: cleanup
 
-(in-ns 'user)
+(in-ns 'sss.core)
 (def gs (atom nil))
 
 (defn mk-path [path]
@@ -29,20 +29,23 @@
         nil)))
 
 (defn actor []
-  (cons :universe (:actor-path @gs)))
+  (sss.game.gamestate/actor @gs))
+
+(defn actor-path [& path]
+  (concat (:actor-path @gs) path))
 
 (defn godmode []
-  (refer 'user)
+  (refer 'sss.core)
   (refer 'sss.game.gamestate))
 
 (in-ns 'sss.graphics.gui.term)
 
 (defn execute [gs string]
   (try 
-    (reset! user/gs gs)
+    (reset! sss.core/gs gs)
     (let [expr (read-string (str string))
           output (str (eval expr))
-          gs @user/gs]
+          gs @sss.core/gs]
       (-> gs
           (update-in [:meta :term :lines] conj output)))
   (catch Exception e (update-in gs [:meta :term :lines] conj (str string \newline e)))))
@@ -89,7 +92,7 @@
             gs 
             [:meta :term :current]
             (fn [_]
-              "(user/godmode)"))
+              "(sss.core/godmode)"))
           :else 
           (if-let [ch (gs/pop-key! gs)]
             (-> gs

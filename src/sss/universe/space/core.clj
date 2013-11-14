@@ -2,13 +2,14 @@
   "Space - part of universe representing space"
   (:require [sss.universe.system.core :as system]
             [sss.universe.random :as rnd]
+            [sss.universe.social.politics :as politics]
             [sss.graphics.bitmap :as bm]
             [sss.graphics.core :as gr]
             [sss.graphics.canvas :as can]
             [sss.universe.util :refer :all]))
 
-(def rows-bounds [6 10])
-(def cols-bounds [6 10])
+(def rows-bounds [12 24])
+(def cols-bounds [12 24])
 
 (defn gen-row []
   "Generate row of space"
@@ -62,35 +63,46 @@
 (defn pointed-data
   "Get pointed-data of ~space, @return pointed data"
   [space & {:keys [margin-x margin-y paint-cb] 
-            :or {margin-x 10 margin-y 4 paint-cb (fn [c & _] c)}}]
-  (reduce-space
-    (fn [d x y system]
-      (update-in 
-        d
-        [(+ 2 (-> system :offset first) (* x margin-x))
-         (+ 2 (-> system :offset second) (* y margin-y))
-         :systems]
-        initconj 
-        (-> system
-            (assoc :rx x)
-            (assoc :ry y))))
-    {}
-    space))
-
+            :or {margin-x 6 margin-y 1 paint-cb (fn [c & _] c)}}]
+  (let [global-offset-x 2
+        global-offset-y 2]
+    (reduce-space
+      (fn [d x y system]
+        (update-in
+          d
+          [(+ global-offset-y (-> system :offset second) (* y margin-y))]
+          (fn [node]
+            (update-in 
+              (if (map? node) node (sorted-map))
+              [(+ global-offset-x (-> system :offset first) (* x margin-x)) :systems]
+              initconj
+              (-> system
+                  (assoc :rx x)
+                  (assoc :ry y)))
+            )))
+      (sorted-map)
+      space)))
 
 (defn visualize
   "Visualize pointed data ~data, applying ~paint-callback to every item.
   Paint callback - fn with [canvas, paint-x paint-y system-x system-y system]
   @return canvas"
-  [data & {:keys [paint-callback] :or [paint-callback (fn [c & _] c)]}]
+  [universe data & {:keys [paint-callback] :or [paint-callback (fn [c & _] c)]}]
+  (let [n (atom 0)]
   (reduce-pdata 
     (fn [c x y k o]
-      (paint-callback
-        (can/in-paint
-          c
-          ((bm/bitmap "`yellow:*") :t y :l x)
-          ((gr/string (str "`magenta:" (:name o))) :t (dec y) :l (- x 1)))
-        x y (:rx o) (:ry o) o))
+      (let [get-color (fn [kw] (let [s (str kw)] (.substring s 1 (count s))))
+            union (politics/system-owner universe o)
+            color (if (not= union :unoccupied) (get-color (:color union)) "black")
+            line (apply str (repeat 7 \ ))]
+        (swap! n inc)
+        (paint-callback
+          (can/in-paint
+            c
+            ((gr/string (str "~" color ":" line)) :t y :l (- x 1))
+            ((gr/string (str "~" color ":" line)) :t (inc y) :l (- x 3))
+            ((gr/string (str "`white:~" color ":" @n)) :t y :l x))
+          x y (:rx o) (:ry o) o)))
     (can/canvas 500 500)
-    data))
+    data)))
 

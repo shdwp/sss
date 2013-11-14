@@ -4,8 +4,8 @@
 
 (defn canvas 
   "Create canvas with ~w(idth) and ~h(eight)"
-  [w h]
-  (repeat h (repeat w " ")))
+  ([w h] (repeat h (repeat w " ")))
+  ([w h ch] (repeat h (repeat w ch))))
 
 (defn w 
   "Get width of ~canvas"
@@ -41,8 +41,8 @@
 (defn paint 
   "Paint ~bitmap into ~canvas, with padding defined with :t :l or :b :r."
   ([canvas bitmap & {:keys [t l b r] :or [] :as padding}]
-   (let [l (if (nil? l) (- r (count (first bitmap))) l)
-         t (if (nil? t) (- b (count bitmap)) t)]
+   (let [l (if (nil? l) (- (count (first canvas)) r (count (first bitmap))) l)
+         t (if (nil? t) (- (count canvas) b (count bitmap)) t)]
      (paint-padding canvas bitmap t l))))
 
 (defmacro in-paint 
@@ -84,4 +84,3 @@
         canvas (concat  (repeat ta (repeat new-w \space))
                        (map #(concat (repeat la \space) %) canvas))]
   (map #(take w (drop l %)) (take h (drop t canvas)))))
-

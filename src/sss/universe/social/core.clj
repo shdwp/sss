@@ -4,7 +4,7 @@
   (:require [sss.universe.random :as rnd]
             [sss.universe.social.lingvo :as lin]))
 
-(def union-colors [:white :blue :magenta :yellow :red :green])
+(def union-colors [:blue :red :yellow :magenta :green])
 
 (defn gen-race 
   "Generate race in ~races"
@@ -34,11 +34,19 @@
       (mapv (fn [[k _]] [k]) (take unions-count races))
       (drop unions-count races))))
 
+(defn gen-races2 [unions]
+  (reduce
+    (fn [races union]
+      
+      )
+    []
+    unions))
+
 (defn gen-union 
   "Gen union in ~unions and using ~races-paritions"
   [unions races-partitions]
   (-> {}
-      (assoc :races races-partitions)
+      (assoc :races (set races-partitions))
       (#(assoc % :type (lin/gen-union-type %)))
       (#(assoc % :name (rnd/unique unions :name lin/gen-union-name %)))))
 

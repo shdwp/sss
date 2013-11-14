@@ -12,12 +12,12 @@
                 :module-size [7 6]
                 :mixins []
                 :scheme [nil
-                         {:name "comm" :x 1 :y 0 :gen #(gen-cc %)} 
+                         {:name "comm" :x 1 :y 0 :gen 'sss.ship.gen/gen-cc} 
                          nil
                          ,
-                         {:name "living" :x 0 :y 1 :gen #(gen-living %)}
-                         {:name "engine" :x 1 :y 1 :gen #(gen-engine %)} 
-                         {:name "hold" :x 2 :y 1 :gen #(gen-hold %)} 
+                         {:name "living" :x 0 :y 1 :gen 'sss.ship.gen/gen-living}
+                         {:name "engine" :x 1 :y 1 :gen 'sss.ship.gen/gen-engine} 
+                         {:name "hold" :x 2 :y 1 :gen 'sss.ship.gen/gen-hold} 
                          ]})
 
 (defn apply-form 
@@ -29,27 +29,36 @@
     0 
     0))
 
+(defn map-mixin [mixin ship]
+  (apply (resolve (:gen mixin)) ship []))
+
 (defn apply-mixins 
   "Apply mixins (doors, etc) of ~ship to ~gm(ap)"
   [gm ship]
   (reduce
     (fn [gm mixin]
-      (gmap/put gm (:bitmap mixin) (:x mixin) (:y mixin)))
+      (gmap/put gm (map-mixin mixin ship) (:x mixin) (:y mixin)))
     gm
     (:mixins ship)))
+
+(defn get-enumerated-not-nil-modules [ship]
+  (filter (comp not nil? second)
+          (map-indexed vector (:scheme ship))))
+  
+(defn map-module [module ship]
+  (apply (resolve (:gen module)) [ship]))
 
 (defn apply-modules 
   "Apply modules of ~ship to ~gm(ap)"
   [gm ship]
-  (reduce #(gmap/put 
-             %1 
-             (:map (second %2))
-             (* (:x (second %2)) (first (:module-size ship)))
-             (* (:y (second %2)) (second (:module-size ship))))
+  (reduce #(let [module (second %2)] 
+             (gmap/put 
+               %1 
+               (map-module module ship)
+               (* (:x module) (first (:module-size ship)))
+               (* (:y module) (second (:module-size ship)))))
           gm
-          (filter 
-            #(not (nil? (second %))) 
-            (map-indexed #(vector %1 %2) (:scheme ship)))))
+          (get-enumerated-not-nil-modules ship)))
 
 (defn gen-map 
   "Generate ~ship gmap"

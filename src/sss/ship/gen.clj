@@ -10,6 +10,7 @@
       b (m/bed)
       f (m/metal-rusty-floor)
       cc (m/cc-console)
+      ncc (m/new-cc-console)
       dc (m/dc-console)
       _ tiles/tiles
       blank (_ w (repeat 6 f) w)
@@ -25,7 +26,7 @@
     (bitmap (_ top)
             (_ blank)
             (_ blank)
-            (_ w f cc w w dc f w)
+            (_ w f cc ncc w dc f w)
             (_ blank)
             (_ blank)
             (_ top)))
@@ -64,7 +65,11 @@
             (_ w f b f f b f w)
             (_ w f b f f b f w)
             (_ blank)
-            (_ top))))
+            (_ top)))
+  
+  (defn gen-rusty-door [ship]
+    (bitmap (tiles/tiles (m/metal-rusty-door))))
+  )
 
 
 (defn pair-module [ship a b]
@@ -76,6 +81,9 @@
 
 (defn gen-module [ship i]
   (update-in ship [:scheme i] #(if (nil? %) % (assoc % :map (apply (:gen %) ship [])))))
+
+(defn gen-module [ship i]
+  ship)
 
 (defn gen-ship [ship]
   (reduce

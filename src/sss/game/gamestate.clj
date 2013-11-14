@@ -26,6 +26,15 @@
    :tick 0
    :turn 0})
 
+(defn save [gs file]
+  (spit file {:universe (:universe gs)
+              :actor-path (:actor-path gs)
+              :turn (:turn gs)}))
+
+(defn load [gs file]
+  (let [s (read-string (slurp file))]
+    (merge gs s)))
+
 (defmacro update 
   "Threaded-like macro, that'll pass ~-gs trough ~forms, but to each form additionaly will be passed static ~-gs. Form function receive 2 args - gs, -gs and generally called ruler
   @return updated ~-gs"
@@ -127,7 +136,7 @@
   [gs disp & [data]]
   (-> gs
       (update-in [:gds] #(conj (vec %) disp))
-      (assoc-in [:gds-data (:name disp)] data)))
+      (assoc-in [:gd-data (:name disp)] data)))
 
 (defn gd-pop
   "Remove all gd's after one named ~n. @return updated ~gs"
@@ -140,7 +149,7 @@
 (defn gd-data-path 
   "Get path of gd named ~n data in ~gs. @return path coll"
   [n & path]
-  (concat [:gds-data n] path))
+  (concat [:gd-data n] path))
 
 (defn gd-data 
   "Get data in ~path of gd named ~n in ~gs. @return data"
@@ -148,9 +157,14 @@
   (get-in gs (apply gd-data-path n path)))
 
 (defn gd-set-data
-  "Set gd named ~n data in ~path in ~gs. @return updated ~gs"
-  [gs n & pv]
-  (assoc-in gs (apply gd-data-path n (butlast pv)) (last pv)))
+  "Set gd data in ~path in ~gs. @return updated ~gs"
+  [gs path v]
+  (assoc-in gs (apply gd-data-path path) v))
+
+(defn gd-update-data
+  "Update gd data in ~path in ~gs. @return updated ~gs"
+  [gs path f]
+  (update-in gs (apply gd-data-path path) f))
 
 (defn current-gd 
   "Get last gd in ~gs. @return game dispatcher"

@@ -51,11 +51,11 @@
         h (can/h canvas)]
     (-> bm
         (view/view-bitmap 
-          (- (can/w canvas) (or border 0))
-          (- 30 (or border 0))
+          (- w (or border 0))
+          (- h (or border 0))
           :t t
           :l l)
-        (can/paint (bm/bitmap "X") :l (int (dec (/ w 2))) :t (int (dec (/ 30 2))))
+        (can/paint (bm/bitmap "X") :l (int (dec (/ w 2))) :t (int (dec (/ h 2))))
   )))
 
 (def key-choices (map char (range 97 126)))
@@ -67,3 +67,4 @@
 
 (defn menu-vis [choices]
   (apply text -1 (map #(str %1 " " %2) key-choices choices)))
+

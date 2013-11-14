@@ -5,6 +5,7 @@
             [sss.graphics.viewport :as view]
             [sss.graphics.canvas :as canvas]
             [sss.universe.system.core :as sys]
+            [sss.game.gmap :as ggmap]
             ))
 
 (defn ship-ruler 

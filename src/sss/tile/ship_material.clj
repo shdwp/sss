@@ -33,4 +33,8 @@
 (defn dc-console [] (tile \$ pass-false
                           {:fg :blue
                            :turn (console-align 'sss.game.console.direct-control)}))
+(defn new-cc-console [] (tile \$ pass-false
+                              {:fg :red
+                               :turn (console-align 'sss.game.console.new-cc)}))
+
 (defn bed [] (tile \= pass-true {:fg :red}))

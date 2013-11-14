@@ -22,18 +22,12 @@
         system-path (take 3 ship-path)]
     (if (= (gs/gd-data gs :cc-console :mode) :gate)
       (gui/menu-sel gs 
-                    (map 
-                      second
-                      (space/get-near-systems (gs/get-universe gs [:space])
-                                              1
-                                              (nth system-path 2)
-                                              (nth system-path 1)))
+                    (gs/gd-data gs :cc-console :gate)
                     #(-> %1
                          (gs/update-universe (concat system-path [:gate :queue])
                                              conj [ship-path %2])
                          (gs/turn)
-                         (gs/gd-pop :console)
-                         ))
+                         (gs/gd-pop :console)))
       gs)))
 
 (defn info-on [object]
@@ -66,6 +60,7 @@
       gs 
       :cc-console :maps :gmap :bitmap
       (space/visualize
+        (gs/get-universe gs [])
         (gs/gd-data gs :cc-console :maps :gmap :data)
         :paint-callback (fn [c fx fy x y s]
                           (if (>= (uni/compare-paths [:space y x] 
@@ -73,6 +68,20 @@
                             (canvas/paint c (bm/bitmap "@") :t fy :l (dec fx))
                             c))))
     gs))
+
+(defn gen-gate-dests [gs]
+  (if-not (gs/gd-data gs :cc-console :gate)
+    (let [ship-path (take 5 (gs/gd-data gs :cc-console :path))
+          system-path (take 3 ship-path)]
+      (gs/gd-set-data 
+        gs 
+        :cc-console :gate 
+        (map second (space/get-near-systems 
+                      (gs/get-universe gs [:space])
+                      1
+                      (nth system-path 2)
+                      (nth system-path 1))))))
+  gs)
 
 (defn pointable-map [gs x y]
   (let [data (sys/pointed-data
@@ -87,6 +96,7 @@
   (-> gs
       gen-maps-data
       gen-maps-bitmap
+      gen-gate-dests
       gate-menu
       (gui/mode-toggle (gs/gd-data-path :cc-console :mode) \m :info :map)
       (gui/mode-toggle (gs/gd-data-path :cc-console :mode) \M :info :gmap)
@@ -94,7 +104,7 @@
 
       (gui/pointable-in-modes (gs/gd-data-path :cc-console :mode)
                               [:gmap]
-                              (canvas/canvas 50 30)
+                              (canvas/canvas 30 20)
                               (or (gs/gd-data gs :cc-console :map :x) 0) 
                               (or (gs/gd-data gs :cc-console :map :y) 0)
                               (fn [g x y]
@@ -102,10 +112,10 @@
                                   g
                                   :cc-console :maps :gmap :selected
                                   (get-in (gs/gd-data gs :cc-console :maps :gmap :data) 
-                                          [x y]))))
+                                          [y x]))))
       (gui/pointable-in-modes (gs/gd-data-path :cc-console :mode)
                               [:map]
-                              (canvas/canvas 50 30) ;; @TODO
+                              (canvas/canvas 30 20) ;; @TODO
                               (or (gs/gd-data gs :cc-console :map :x) 0) 
                               (or (gs/gd-data gs :cc-console :map :y) 0)
                               pointable-map)
@@ -158,8 +168,7 @@
              (or (gs/gd-data gs :cc-console :map :y) 0) 
              (or (gs/gd-data gs :cc-console :map :x) 0)
              2) :t 1 :l 1)
-          ((apply gui/text 30 (flatten (map gr/text-map info)))
-           :t 1 :l 1)))
+          ((apply gui/text 30 (flatten (map gr/text-map info))) :t 1 :l 1)))
       :gate
       (do
         (canvas/paint
@@ -169,7 +178,6 @@
                (apply (partial space/get-near-systems (gs/get-universe gs [:space]) 1)
                       (take 2 (drop 1 (gs/gd-data gs :cc-console :path))))))
         :t 1 :l 2))
-      
       )))
 
 (defn align

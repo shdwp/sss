@@ -2,8 +2,10 @@
   "System - space component representing star system"
   (:require [sss.graphics.canvas :as can]
             [sss.universe.random :as rnd]
+            [sss.universe.util :as util]
             [sss.universe.social.lingvo :as lin]
             [sss.universe.planet.core :as planet]
+            [sss.universe.station.core :as station]
             [sss.graphics.core :as gr]
             [sss.graphics.bitmap :as bm]))
 
@@ -14,12 +16,13 @@
     {:name (rnd/unique row :name lin/gen-star-name)
      :gate {:x (rnd/r 2 18) :y (rnd/r 2 18)}
      :star [10 10]
-     :track-size 2
+     :track-size 1
      :ships []
      :planets []
      :stations []
-     :offset [(rnd/r -2 2) (rnd/r -1 1)]}
+     :offset [(rnd/r -2 2) (rnd/r 0 0)]}
     (#(assoc % :planets (planet/gen-planets %)))
+    (#(assoc % :stations (station/gen-stations %)))
     ))
 
 (defn system-summary 
@@ -62,7 +65,7 @@
                               (let [;; @TODO: you're know what to do
                                     x (* (:track-size system) (:track planet))
                                     y 0
-                                    a ((:pos planet) turn)
+                                    a (util/move-with (:pos planet) (:speed planet) turn)
                                     v [(- (* x (Math/cos a)) (* y (Math/sin a)))
                                        (+ (* x (Math/sin a)) (* y (Math/cos a)))]]
                                 (update-in d 
@@ -73,11 +76,29 @@
                                            planet)))
                               d
                               (:planets s)))
+        apply-stations (fn [d s]
+                          (reduce
+                            (fn [d station]
+                              (let [;; @TODO: you're know what to do
+                                    x (* (:track-size system) (:track station))
+                                    y 0
+                                    a (util/move-with (:pos station) (:speed station) turn)
+                                    v [(- (* x (Math/cos a)) (* y (Math/sin a)))
+                                       (+ (* x (Math/sin a)) (* y (Math/cos a)))]]
+                                (update-in d 
+                                           [(int (+ 10 (first v)))
+                                            (int (+ 10 (second v)))
+                                            :stations]
+                                           initconj 
+                                           station)))
+                              d
+                              (:stations s)))
         apply-star (fn [d s]
                      (update-in d (conj (:star s) :stars) initconj s))]
     (-> data
         (apply-star system)
         (apply-planets system)
+        (apply-stations system)
         (apply-gate system)
         (apply-ships system))))
 
@@ -94,10 +115,11 @@
               (reduce
                 (fn [c i]
                   (can/paint c (case k
-                                 :ships (bm/bitmap "`blue:0")
-                                 :gates (bm/bitmap "`blue:G")
+                                 :ships (bm/bitmap "`white:0")
+                                 :gates (bm/bitmap "`white:G")
                                  :stars (bm/bitmap "`yellow:*")
-                                 :planets (bm/bitmap "`cyan:o")
+                                 :stations (bm/bitmap "`white:S")
+                                 :planets (bm/bitmap "`blue:o")
                                  (bm/bitmap "?"))
                              :t y :l x))
                 c

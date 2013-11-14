@@ -57,21 +57,27 @@
   [gs]
   (let [system-path (take 3 (:actor-path gs))]
     (-> gs
-        (autopilot-system system-path)
+        ;(autopilot-system system-path)
         (gate-system system-path (:actor-path gs)))))
 
 (defn gen-gs 
   "Generate gamestate"
   []
   (let [universe (-> (uni/gen-universe)
-                     (update-in [:space 0 1 :ships 0]
+                     (update-in [:space 0 0 :ships 0]
                                 (fn [& _] (ship-gen/gen-ship (ship/-ship))))
-                     (update-in [:space 0 1 :ships 0 :entities 0] 
+                     (update-in [:space 0 0 :ships 0 :entities 0] 
                                 (fn [& _] (actor/actor 9 2))))
-          actor-path [:space 0 1 :ships 0 :entities 0]]
+          actor-path [:space 0 0 :ships 0 :entities 0]]
         (gs/gamestate universe actor-path universe-turner)))
+
+(defn load-gs [file]
+  (gs/load (gs/gamestate nil nil universe-turner) file))
 
 (defn start 
   "Start game with ~gs (or without)"
-  ([] (game-game/start (game-ship/align (gen-gs)))))
+  ([] 
+   (game-game/start (game-ship/align (gen-gs)))))
 
+(defn continue [file]
+  (game-game/start (game-ship/align (load-gs file))))

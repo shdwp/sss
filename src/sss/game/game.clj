@@ -11,17 +11,16 @@
 (defn game-cycle 
   [gs-]
   (let [gs (gs/update gs-
-                      gs/tps-ruler
-                      term/term-ruler
+                      ((resolve 'sss.core/commit-ruler))
+                      (gs/tps-ruler)
                       (gs/gds-update)
                       (gs/tps-counter-ruler (:last-cycle gs-))
-                      gs/turn-update)
+                      (gs/turn-update))
 
         canvas (-> (canvas/canvas 50 40)
                    (gs/gds-paint gs)
-                   (term/term-painter gs)
-                   (canvas/paint (gr/string (str "turn_" (:turn gs))) :t 0 :r 50)
-                   (canvas/paint (gr/string (str "tps_" (gs/average-tps gs))) :t 1 :r 50))]
+                   (canvas/paint (gr/string (str "turn_" (:turn gs))) :t 0 :r 0)
+                   (canvas/paint (gr/string (str "tps_" (gs/average-tps gs))) :t 1 :r 0))]
     (send (:view gs) (fn [_] canvas))
     (gs/limit-tps! gs 20)
     (recur (update-in gs [:tick] inc))))

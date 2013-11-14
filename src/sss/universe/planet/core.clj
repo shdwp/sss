@@ -2,6 +2,7 @@
   "Planets - object in universe representing planet"
   (:require [sss.universe.random :as rnd]
             [sss.universe.social.lingvo :as lin]
+            [sss.universe.util :as util]
             [clojure.string :refer [join]]))
 
 (def planet-hard-bounds 
@@ -64,21 +65,13 @@
   [planet]
   (lin/gen-planet-name))
 
-(defn move-with 
-  "Move planet's angle with ~speed"
-  [speed]
-  (let [start (rnd/r 1 360)]
-    (fn [turn]
-      (let [moved (double (+ (* turn speed) start))
-            years (int (/ moved 360))]
-        (- moved (* years 360))))))
-
 (defn gen-planet 
   "Generate planet in ~planets of ~system"
   [planets system]
   (-> {:size (gen-size)
        :track (apply rnd/r planet-track-bounds)
-       :pos (move-with 1/512)}
+       :pos (rnd/r 0 360)
+       :speed 1/512}
       gen-type
       (#(assoc % :core (gen-core %)))
       (#(assoc % :climate (gen-climate %)))
