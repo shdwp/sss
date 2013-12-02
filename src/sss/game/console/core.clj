@@ -25,8 +25,8 @@
   (let [path (gs/gd-data gs :console :path)
         ship (gs/get-universe gs path)]
     (canvas/in-paint 
-      (canvas/crop canvas 30 20 0 0 0 0)
-      ((gr/rect 30 20 \#) :t 0 :l 0)
+      (canvas/crop canvas (gs/gd-data gs :console :canvas :w) (gs/gd-data gs :console :canvas :h) 0 0 0 0)
+      ((gr/rect (gs/gd-data gs :console :canvas :w) (gs/gd-data gs :console :canvas :h) \#) :t 0 :l 0)
       ((gr/string (str "$Console@" 
                        (uni/unipath (:universe gs) 
                                     path
@@ -43,6 +43,7 @@
      :block-paint true
      :update update
      :paint paint}
-    {:path path}
-    ))
+    {:path path
+     :canvas {:h 20 :w 30}
+     }))
 

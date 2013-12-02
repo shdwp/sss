@@ -32,6 +32,9 @@
                         (concat (list ch) (repeat (- bx 2) nil) (list ch)))
                      (range by)))
 
+(defn text [s]
+  (apply bitmap (vec (.split s "\n"))))
+
 ;; @TODO: move it somewhere \/
 
 (defn text-buffer [lines w h]

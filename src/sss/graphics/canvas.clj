@@ -81,6 +81,7 @@
         l (if (neg? l) 0 l)
 
         new-w (+ (count (first canvas)) la)
-        canvas (concat  (repeat ta (repeat new-w \space))
-                       (map #(concat (repeat la \space) %) canvas))]
+        canvas (concat (repeat ta (repeat new-w \space))
+                       (map #(concat (repeat la \space) %) canvas))
+        ]
   (map #(take w (drop l %)) (take h (drop t canvas)))))

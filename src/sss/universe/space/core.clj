@@ -88,21 +88,20 @@
   Paint callback - fn with [canvas, paint-x paint-y system-x system-y system]
   @return canvas"
   [universe data & {:keys [paint-callback] :or [paint-callback (fn [c & _] c)]}]
-  (let [n (atom 0)]
   (reduce-pdata 
     (fn [c x y k o]
       (let [get-color (fn [kw] (let [s (str kw)] (.substring s 1 (count s))))
             union (politics/system-owner universe o)
             color (if (not= union :unoccupied) (get-color (:color union)) "black")
             line (apply str (repeat 7 \ ))]
-        (swap! n inc)
         (paint-callback
           (can/in-paint
             c
             ((gr/string (str "~" color ":" line)) :t y :l (- x 1))
             ((gr/string (str "~" color ":" line)) :t (inc y) :l (- x 3))
-            ((gr/string (str "`white:~" color ":" @n)) :t y :l x))
-          x y (:rx o) (:ry o) o)))
+            ((gr/string (str "`white:~" color ":*")) :t y :l x))
+          x y (:rx o) (:ry o) o)
+        ))
     (can/canvas 500 500)
-    data)))
+    data))
 

@@ -26,7 +26,7 @@
     (bitmap (_ top)
             (_ blank)
             (_ blank)
-            (_ w f cc ncc w dc f w)
+            (_ w f ncc w w dc f w)
             (_ blank)
             (_ blank)
             (_ top)))

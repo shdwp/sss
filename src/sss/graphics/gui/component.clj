@@ -9,6 +9,12 @@
 (defn blank [a & _]
   a)
 
+(defn uinit [initial f]
+  (fn [value]
+    (if value
+      (f value)
+      initial)))
+
 (defn paint 
   "Paint ~compo into ~canvas with offset of :t and :l"
   [compo canvas gs & {:keys [t l] :or {t 0 l 0}}]
@@ -41,8 +47,30 @@
               canvas
               (map-indexed vector entries)))})
 
+(defn scrollable-bitmap
+  [w h bitmap-fn]
+  (let [a (atom 0)]
+  {:update (fn [gs -gs]
+             (cond 
+               ; 1 pix
+               (gs/get-key-in gs [\j]) (gs/gd-update-data gs [:ui :scr :y] (uinit 0 inc))
+               (gs/get-key-in gs [\k]) (gs/gd-update-data gs [:ui :scr :y] (uinit 0 dec))
+               (gs/get-key-in gs [\h]) (gs/gd-update-data gs [:ui :scr :x] (uinit 0 dec))
+               (gs/get-key-in gs [\l]) (gs/gd-update-data gs [:ui :scr :x] (uinit 0 inc))
+               ; 40 pix 
+               (gs/get-key-in gs [\J]) (gs/gd-update-data gs [:ui :scr :y] (uinit 0 #(+ % 40)))
+               (gs/get-key-in gs [\K]) (gs/gd-update-data gs [:ui :scr :y] (uinit 0 #(+ % -40)))
+               (gs/get-key-in gs [\H]) (gs/gd-update-data gs [:ui :scr :x] (uinit 0 #(+ % -40)))
+               (gs/get-key-in gs [\L]) (gs/gd-update-data gs [:ui :scr :x] (uinit 0 #(+ % 40)))
+               :else gs))
+   :paint (fn [canvas gs]
+            (let [t (or (gs/gd-data gs :ui :scr :y) 0)
+                  l (or (gs/gd-data gs :ui :scr :x) 0)
+                  bitmap (can/crop (bitmap-fn gs) w h t l 0 0)]
+              (can/paint canvas bitmap :t 0 :l 0)))}))
+
 (defn text
   [text-fn]
   {:update blank
    :paint (fn [canvas gs]
-            (can/paint canvas (gr/string (text-fn gs)) :t 0 :l 0))})
+            (can/paint canvas (gr/text (text-fn gs)) :t 0 :l 0))})
